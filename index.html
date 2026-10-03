@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HRA Arrear Bill Software</title>
+<style>
+  :root{
+    --bg:#f4f7fb; --card:#ffffff; --ink:#172033; --muted:#687386;
+    --line:#d8deea; --primary:#244a86; --primary2:#18345f; --soft:#edf3fc;
+    --danger:#b42318; --success:#067647;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+  .app{max-width:1480px;margin:auto;padding:20px}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+  .title h1{margin:0;font-size:25px;color:var(--primary2)}
+  .title p{margin:6px 0 0;color:var(--muted);font-size:14px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  button{border:0;border-radius:7px;padding:10px 14px;font-weight:700;cursor:pointer}
+  .primary{background:var(--primary);color:#fff}
+  .secondary{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+  .danger{background:#fff2f0;color:var(--danger);border:1px solid #f3c7c3}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:16px;box-shadow:0 2px 8px rgba(20,32,60,.04)}
+  .card h2{font-size:16px;margin:0;padding:14px 16px;border-bottom:1px solid var(--line);background:#fbfcfe}
+  .body{padding:16px}
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .field label{display:block;font-size:12px;font-weight:700;color:#46536a;margin-bottom:5px}
+  .field input,.field select,.field textarea{
+    width:100%;padding:9px 10px;border:1px solid #cbd3e1;border-radius:6px;background:#fff;font-size:13px;color:var(--ink)
+  }
+  .field textarea{min-height:72px;resize:vertical}
+  .span2{grid-column:span 2}.span4{grid-column:span 4}
+  .hint{font-size:12px;color:var(--muted);margin-top:7px}
+  .employee-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+  .badge{background:var(--soft);color:var(--primary2);font-weight:700;border-radius:16px;padding:6px 10px;font-size:12px}
+  .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}
+  table{border-collapse:collapse;width:100%}
+  th,td{border-bottom:1px solid #e3e7ef;border-right:1px solid #e8ebf1;padding:6px;vertical-align:middle}
+  th{background:#eef3fa;color:#2e3d55;font-size:11px;white-space:nowrap;text-align:center}
+  td{font-size:12px}
+  td input, td select{width:100%;min-width:82px;border:1px solid #c9d2df;border-radius:4px;padding:6px;font-size:12px}
+  td .wide{min-width:160px}
+  td .date{min-width:126px}
+  .num{text-align:right}
+  .computed{background:#f8fafc;font-weight:700;white-space:nowrap}
+  .remove{padding:6px 8px;background:#fff3f1;color:var(--danger);border:1px solid #f2c9c4}
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .kpi{padding:12px;border:1px solid var(--line);border-radius:8px;background:#fbfcfe}
+  .kpi span{display:block;font-size:11px;color:var(--muted);font-weight:700}
+  .kpi strong{display:block;font-size:20px;margin-top:4px;color:var(--primary2)}
+  .status{font-size:12px;margin-left:8px;color:var(--success);font-weight:700}
+  .print-area{display:none}
+  .print-title{text-align:center}
+  .print-title h2,.print-title h3{margin:4px 0}
+  .bill-meta{display:flex;justify-content:space-between;font-size:12px;margin:10px 0}
+  .bill-table{font-size:10px}
+  .bill-table th,.bill-table td{border:1px solid #111;padding:4px}
+  .bill-table th{background:#fff;color:#111}
+  .right{text-align:right}.center{text-align:center}
+  .words{margin-top:12px;font-size:12px}
+  .sign{display:flex;justify-content:flex-end;margin-top:45px;font-weight:700}
+  @media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}.span4{grid-column:span 2}.summary{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:650px){.app{padding:10px}.topbar{flex-direction:column}.grid{grid-template-columns:1fr}.span2,.span4{grid-column:span 1}.summary{grid-template-columns:1fr}}
+  @media print{
+    body{background:#fff}
+    .app > *:not(.print-area){display:none!important}
+    .print-area{display:block!important}
+    @page{size:A4 landscape;margin:8mm}
+    .print-area{font-family:"Times New Roman",serif;color:#000}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="title">
+      <h1>HRA Arrear Bill Software</h1>
+      <p>Government office bill entry, calculation and printable HRA difference statement</p>
+    </div>
+    <div class="actions">
+      <button class="secondary" onclick="saveDraft()">Save Draft</button>
+      <button class="secondary" onclick="loadDraft()">Load Draft</button>
+      <button class="secondary" onclick="calculateAll()">Calculate All</button>
+      <button class="primary" onclick="printBill()">Preview / Print Bill</button>
+      <button class="danger" onclick="resetForm()">New Bill</button>
+      <span id="saveStatus" class="status"></span>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2>1. Office & Bill Details</h2>
+    <div class="body">
+      <div class="grid">
+        <div class="field span2"><label>Name of College / Office</label><input id="officeName" value="Government Degree College, SALUR"></div>
+        <div class="field"><label>STO Code</label><input id="stoCode" value="2204"></div>
+        <div class="field"><label>STO Office Name</label><input id="stoName" value="Salur"></div>
+        <div class="field"><label>DDO Code</label><input id="ddoCode" value="22100304001"></div>
+        <div class="field"><label>DDO Designation</label><input id="ddoDesignation" value="PRINCIPAL"></div>
+        <div class="field"><label>Treasury Code</label><input id="treasuryCode" value="2210"></div>
+        <div class="field"><label>Bank Name</label><input id="bankName" value="S.B.I. Salur"></div>
+        <div class="field"><label>Bill No.</label><input id="billNo" placeholder="e.g. 2026-"></div>
+        <div class="field"><label>Bill Date</label><input id="billDate" type="date"></div>
+        <div class="field"><label>Bill Month</label><input id="billMonth" placeholder="e.g. July 2026"></div>
+        <div class="field"><label>Present DA %</label><input id="daRate" type="number" step="0.01" value="50"></div>
+        <div class="field"><label>Default HRA Admissible %</label><input id="newHraRate" type="number" step="0.01" value="18"></div>
+        <div class="field"><label>Default HRA Already Drawn %</label><input id="oldHraRate" type="number" step="0.01" value="10"></div>
+        <div class="field span4"><label>Bill Description / Proceedings / Reason</label><textarea id="billReason" placeholder="Enter common reason or proceedings reference for this HRA difference bill..."></textarea></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Employee Details & HRA Calculation</h2>
+    <div class="body">
+      <div class="employee-toolbar">
+        <div>
+          <button class="primary" onclick="addEmployee()">+ Add Employee</button>
+          <span class="badge" id="empCount">0 / 20 employees</span>
+        </div>
+        <div class="hint">Eligible pay is prorated calendar-month-wise for the selected period.</div>
+      </div>
+      <div class="table-wrap">
+        <table id="employeeTable">
+          <thead>
+            <tr>
+              <th rowspan="2">Sl.</th>
+              <th rowspan="2">Employee ID</th>
+              <th rowspan="2">Employee Name</th>
+              <th rowspan="2">Designation</th>
+              <th rowspan="2">Scale of Pay</th>
+              <th rowspan="2">Monthly Basic</th>
+              <th rowspan="2">From</th>
+              <th rowspan="2">To</th>
+              <th rowspan="2">Days</th>
+              <th rowspan="2">DA %</th>
+              <th colspan="4">TO BE DRAWN</th>
+              <th colspan="4">ALREADY DRAWN</th>
+              <th colspan="4">DIFFERENCE</th>
+              <th rowspan="2">GPF</th>
+              <th rowspan="2">IT / Other</th>
+              <th rowspan="2">Net Payable</th>
+              <th rowspan="2">Bank A/c</th>
+              <th rowspan="2">IFSC</th>
+              <th rowspan="2"></th>
+            </tr>
+            <tr>
+              <th>Basic</th><th>DA</th><th>HRA %</th><th>HRA</th>
+              <th>Basic</th><th>DA</th><th>HRA %</th><th>HRA</th>
+              <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="hint">You can enter different admissible and already-drawn HRA percentages for each employee. Maximum 20 employees per bill.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Bill Summary</h2>
+    <div class="body">
+      <div class="summary">
+        <div class="kpi"><span>Total HRA Difference</span><strong id="sumHra">₹0</strong></div>
+        <div class="kpi"><span>Gross Arrear</span><strong id="sumGross">₹0</strong></div>
+        <div class="kpi"><span>Total Deductions</span><strong id="sumDed">₹0</strong></div>
+        <div class="kpi"><span>Net Amount Payable</span><strong id="sumNet">₹0</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="printArea" class="print-area">
+    <div class="print-title">
+      <h2>HRA DIFFERENCE ARREAR BILL</h2>
+      <h3 id="pOffice"></h3>
+    </div>
+    <div class="bill-meta">
+      <div><b>DDO Code:</b> <span id="pDdo"></span> &nbsp; <b>STO:</b> <span id="pSto"></span></div>
+      <div><b>Bill No:</b> <span id="pBillNo"></span> &nbsp; <b>Date:</b> <span id="pBillDate"></span></div>
+    </div>
+    <div id="pReason" style="font-size:11px;margin:8px 0;"></div>
+    <table class="bill-table">
+      <thead>
+        <tr>
+          <th rowspan="2">Sl.No</th>
+          <th rowspan="2">Name / Employee ID / Designation</th>
+          <th rowspan="2">Scale</th>
+          <th rowspan="2">Bill Period</th>
+          <th colspan="4">TO BE DRAWN</th>
+          <th colspan="4">ALREADY DRAWN</th>
+          <th colspan="4">DIFFERENCE</th>
+          <th rowspan="2">Deductions</th>
+          <th rowspan="2">Net</th>
+        </tr>
+        <tr>
+          <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th>
+          <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th>
+          <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th>
+        </tr>
+      </thead>
+      <tbody id="printRows"></tbody>
+      <tfoot>
+        <tr>
+          <th colspan="4" class="right">GRAND TOTAL</th>
+          <th id="ptbBasic"></th><th id="ptbDa"></th><th id="ptbHra"></th><th id="ptbGross"></th>
+          <th id="padBasic"></th><th id="padDa"></th><th id="padHra"></th><th id="padGross"></th>
+          <th id="pdBasic"></th><th id="pdDa"></th><th id="pdHra"></th><th id="pdGross"></th>
+          <th id="pDed"></th><th id="pNet"></th>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="words"><b>Net amount in words:</b> <span id="pWords"></span></div>
+    <div class="sign"><span id="pSign">PRINCIPAL / DDO</span></div>
+  </div>
+</div>
+
+<script>
+const MAX_EMP = 20;
+const tbody = document.querySelector('#employeeTable tbody');
+
+function q(id){ return document.getElementById(id); }
+function n(v){ const x = parseFloat(v); return Number.isFinite(x) ? x : 0; }
+function money(v){ return '₹' + Math.round(n(v)).toLocaleString('en-IN'); }
+function cellMoney(v){ return Math.round(n(v)).toLocaleString('en-IN'); }
+function isoToDisplay(s){
+  if(!s) return '';
+  const [y,m,d]=s.split('-'); return `${d}.${m}.${y}`;
+}
+function inclusiveDays(from,to){
+  if(!from || !to) return 0;
+  const a=new Date(from+'T00:00:00'), b=new Date(to+'T00:00:00');
+  if(b<a) return 0;
+  return Math.round((b-a)/86400000)+1;
+}
+function proratedBasic(monthlyBasic, from, to){
+  monthlyBasic=n(monthlyBasic);
+  if(!monthlyBasic || !from || !to) return 0;
+  let start=new Date(from+'T00:00:00'), end=new Date(to+'T00:00:00');
+  if(end<start) return 0;
+  let total=0;
+  let cursor=new Date(start);
+  while(cursor<=end){
+    const y=cursor.getFullYear(), m=cursor.getMonth();
+    const daysInMonth=new Date(y,m+1,0).getDate();
+    const segStart=new Date(Math.max(cursor.getTime(), new Date(y,m,1).getTime()));
+    const segEnd=new Date(Math.min(end.getTime(), new Date(y,m,daysInMonth).getTime()));
+    const days=Math.round((segEnd-segStart)/86400000)+1;
+    total += monthlyBasic/daysInMonth*days;
+    cursor=new Date(y,m+1,1);
+  }
+  return Math.round(total);
+}
+function rowInput(cls,type='text',value=''){
+  return `<input class="${cls}" type="${type}" value="${value}">`;
+}
+function addEmployee(data={}){
+  if(tbody.rows.length>=MAX_EMP){ alert('Maximum 20 employees are allowed in one bill.'); return; }
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td class="center sl"></td>
+    <td>${rowInput('empId','text',data.empId||'')}</td>
+    <td>${rowInput('empName wide','text',data.empName||'')}</td>
+    <td>${rowInput('designation wide','text',data.designation||'')}</td>
+    <td>${rowInput('scale','text',data.scale||'')}</td>
+    <td>${rowInput('monthlyBasic','number',data.monthlyBasic||'')}</td>
+    <td>${rowInput('from date','date',data.from||'')}</td>
+    <td>${rowInput('to date','date',data.to||'')}</td>
+    <td class="computed days">0</td>
+    <td>${rowInput('daRate','number',data.daRate ?? q('daRate').value)}</td>
+
+    <td class="computed tbBasic">0</td>
+    <td class="computed tbDa">0</td>
+    <td>${rowInput('newHraRate','number',data.newHraRate ?? q('newHraRate').value)}</td>
+    <td class="computed tbHra">0</td>
+
+    <td class="computed adBasic">0</td>
+    <td class="computed adDa">0</td>
+    <td>${rowInput('oldHraRate','number',data.oldHraRate ?? q('oldHraRate').value)}</td>
+    <td class="computed adHra">0</td>
+
+    <td class="computed dBasic">0</td>
+    <td class="computed dDa">0</td>
+    <td class="computed dHra">0</td>
+    <td class="computed dGross">0</td>
+
+    <td>${rowInput('gpf','number',data.gpf||0)}</td>
+    <td>${rowInput('it','number',data.it||0)}</td>
+    <td class="computed net">0</td>
+    <td>${rowInput('bank wide','text',data.bank||'')}</td>
+    <td>${rowInput('ifsc','text',data.ifsc||'')}</td>
+    <td><button class="remove" onclick="removeRow(this)">×</button></td>`;
+  tbody.appendChild(tr);
+  tr.querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>calculateRow(tr)));
+  renumber();
+  calculateRow(tr);
+}
+function removeRow(btn){ btn.closest('tr').remove(); renumber(); calculateAll(); }
+function renumber(){
+  [...tbody.rows].forEach((r,i)=>r.querySelector('.sl').textContent=i+1);
+  q('empCount').textContent=`${tbody.rows.length} / ${MAX_EMP} employees`;
+}
+function gv(tr,cls){ return tr.querySelector('.'+cls)?.value ?? ''; }
+function setText(tr,cls,val){ tr.querySelector('.'+cls).textContent=cellMoney(val); }
+function calculateRow(tr){
+  const basic=proratedBasic(gv(tr,'monthlyBasic'), gv(tr,'from'), gv(tr,'to'));
+  const days=inclusiveDays(gv(tr,'from'),gv(tr,'to'));
+  const daRate=n(gv(tr,'daRate')), newHra=n(gv(tr,'newHraRate')), oldHra=n(gv(tr,'oldHraRate'));
+  const tbBasic=basic, tbDa=Math.round(tbBasic*daRate/100), tbHra=Math.round(tbBasic*newHra/100);
+  const adBasic=basic, adDa=Math.round(adBasic*daRate/100), adHra=Math.round(adBasic*oldHra/100);
+  const dBasic=tbBasic-adBasic, dDa=tbDa-adDa, dHra=tbHra-adHra;
+  const dGross=dBasic+dDa+dHra;
+  const deductions=n(gv(tr,'gpf'))+n(gv(tr,'it'));
+  const net=dGross-deductions;
+
+  tr.querySelector('.days').textContent=days;
+  setText(tr,'tbBasic',tbBasic); setText(tr,'tbDa',tbDa); setText(tr,'tbHra',tbHra);
+  setText(tr,'adBasic',adBasic); setText(tr,'adDa',adDa); setText(tr,'adHra',adHra);
+  setText(tr,'dBasic',dBasic); setText(tr,'dDa',dDa); setText(tr,'dHra',dHra); setText(tr,'dGross',dGross);
+  setText(tr,'net',net);
+  updateSummary();
+}
+function rowCalc(tr){
+  const basic=proratedBasic(gv(tr,'monthlyBasic'), gv(tr,'from'), gv(tr,'to'));
+  const daRate=n(gv(tr,'daRate')), nr=n(gv(tr,'newHraRate')), or=n(gv(tr,'oldHraRate'));
+  const tb={basic, da:Math.round(basic*daRate/100), hra:Math.round(basic*nr/100)};
+  tb.gross=tb.basic+tb.da+tb.hra;
+  const ad={basic, da:Math.round(basic*daRate/100), hra:Math.round(basic*or/100)};
+  ad.gross=ad.basic+ad.da+ad.hra;
+  const d={basic:tb.basic-ad.basic,da:tb.da-ad.da,hra:tb.hra-ad.hra};
+  d.gross=d.basic+d.da+d.hra;
+  const ded=n(gv(tr,'gpf'))+n(gv(tr,'it'));
+  return {tb,ad,d,ded,net:d.gross-ded,days:inclusiveDays(gv(tr,'from'),gv(tr,'to'))};
+}
+function calculateAll(){ [...tbody.rows].forEach(calculateRow); updateSummary(); }
+function totals(){
+  const t={tbBasic:0,tbDa:0,tbHra:0,tbGross:0,adBasic:0,adDa:0,adHra:0,adGross:0,dBasic:0,dDa:0,dHra:0,dGross:0,ded:0,net:0};
+  [...tbody.rows].forEach(tr=>{
+    const c=rowCalc(tr);
+    t.tbBasic+=c.tb.basic;t.tbDa+=c.tb.da;t.tbHra+=c.tb.hra;t.tbGross+=c.tb.gross;
+    t.adBasic+=c.ad.basic;t.adDa+=c.ad.da;t.adHra+=c.ad.hra;t.adGross+=c.ad.gross;
+    t.dBasic+=c.d.basic;t.dDa+=c.d.da;t.dHra+=c.d.hra;t.dGross+=c.d.gross;t.ded+=c.ded;t.net+=c.net;
+  }); return t;
+}
+function updateSummary(){
+  const t=totals();
+  q('sumHra').textContent=money(t.dHra); q('sumGross').textContent=money(t.dGross);
+  q('sumDed').textContent=money(t.ded); q('sumNet').textContent=money(t.net);
+}
+function collectData(){
+  const office={};
+  ['officeName','stoCode','stoName','ddoCode','ddoDesignation','treasuryCode','bankName','billNo','billDate','billMonth','daRate','newHraRate','oldHraRate','billReason'].forEach(id=>office[id]=q(id).value);
+  const employees=[...tbody.rows].map(tr=>({
+    empId:gv(tr,'empId'),empName:gv(tr,'empName'),designation:gv(tr,'designation'),scale:gv(tr,'scale'),
+    monthlyBasic:gv(tr,'monthlyBasic'),from:gv(tr,'from'),to:gv(tr,'to'),daRate:gv(tr,'daRate'),
+    newHraRate:gv(tr,'newHraRate'),oldHraRate:gv(tr,'oldHraRate'),gpf:gv(tr,'gpf'),it:gv(tr,'it'),
+    bank:gv(tr,'bank'),ifsc:gv(tr,'ifsc')
+  }));
+  return {office,employees};
+}
+function saveDraft(){
+  localStorage.setItem('hraArrearDraft',JSON.stringify(collectData()));
+  q('saveStatus').textContent='Draft saved';
+  setTimeout(()=>q('saveStatus').textContent='',1800);
+}
+function loadDraft(){
+  const raw=localStorage.getItem('hraArrearDraft'); if(!raw){alert('No saved draft found.');return;}
+  const d=JSON.parse(raw);
+  Object.entries(d.office||{}).forEach(([id,v])=>{ if(q(id)) q(id).value=v; });
+  tbody.innerHTML=''; (d.employees||[]).forEach(addEmployee); if(!tbody.rows.length)addEmployee(); calculateAll();
+}
+function resetForm(){
+  if(!confirm('Start a new bill? Current unsaved entries will be cleared.')) return;
+  localStorage.removeItem('hraArrearDraft'); tbody.innerHTML=''; addEmployee(); calculateAll();
+}
+function printBill(){
+  calculateAll();
+  const nonBlank=[...tbody.rows].filter(tr=>gv(tr,'empName').trim());
+  if(!nonBlank.length){alert('Enter at least one employee name before printing.');return;}
+  q('pOffice').textContent=q('officeName').value;
+  q('pDdo').textContent=q('ddoCode').value; q('pSto').textContent=q('stoName').value;
+  q('pBillNo').textContent=q('billNo').value||'________'; q('pBillDate').textContent=isoToDisplay(q('billDate').value)||'________';
+  q('pReason').textContent=q('billReason').value;
+  q('pSign').textContent=(q('ddoDesignation').value||'DDO')+' / DDO';
+
+  const pr=q('printRows'); pr.innerHTML='';
+  nonBlank.forEach((tr,i)=>{
+    const c=rowCalc(tr), r=document.createElement('tr');
+    const who=[gv(tr,'empName'),gv(tr,'empId'),gv(tr,'designation')].filter(Boolean).join('<br>');
+    const period=`${isoToDisplay(gv(tr,'from'))} to ${isoToDisplay(gv(tr,'to'))}<br>(${c.days} Days)`;
+    r.innerHTML=`
+      <td class="center">${i+1}</td><td>${who}</td><td>${gv(tr,'scale')}</td><td>${period}</td>
+      <td class="right">${cellMoney(c.tb.basic)}</td><td class="right">${cellMoney(c.tb.da)}</td><td class="right">${cellMoney(c.tb.hra)}</td><td class="right">${cellMoney(c.tb.gross)}</td>
+      <td class="right">${cellMoney(c.ad.basic)}</td><td class="right">${cellMoney(c.ad.da)}</td><td class="right">${cellMoney(c.ad.hra)}</td><td class="right">${cellMoney(c.ad.gross)}</td>
+      <td class="right">${cellMoney(c.d.basic)}</td><td class="right">${cellMoney(c.d.da)}</td><td class="right">${cellMoney(c.d.hra)}</td><td class="right">${cellMoney(c.d.gross)}</td>
+      <td class="right">${cellMoney(c.ded)}</td><td class="right">${cellMoney(c.net)}</td>`;
+    pr.appendChild(r);
+  });
+  const t=totals();
+  const ids=['ptbBasic','ptbDa','ptbHra','ptbGross','padBasic','padDa','padHra','padGross','pdBasic','pdDa','pdHra','pdGross','pDed','pNet'];
+  const vals=[t.tbBasic,t.tbDa,t.tbHra,t.tbGross,t.adBasic,t.adDa,t.adHra,t.adGross,t.dBasic,t.dDa,t.dHra,t.dGross,t.ded,t.net];
+  ids.forEach((id,i)=>q(id).textContent=cellMoney(vals[i]));
+  q('pWords').textContent=numberToIndianWords(Math.round(t.net))+' only';
+  window.print();
+}
+function numberToIndianWords(num){
+  if(num===0)return 'Rupees Zero';
+  if(num<0)return 'Minus '+numberToIndianWords(-num);
+  const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function under100(n){return n<20?a[n]:b[Math.floor(n/10)]+(n%10?' '+a[n%10]:'');}
+  function under1000(n){return n<100?under100(n):a[Math.floor(n/100)]+' Hundred'+(n%100?' '+under100(n%100):'');}
+  let parts=[], n=Math.floor(num);
+  const crore=Math.floor(n/10000000); n%=10000000;
+  const lakh=Math.floor(n/100000); n%=100000;
+  const thousand=Math.floor(n/1000); n%=1000;
+  if(crore)parts.push(under1000(crore)+' Crore');
+  if(lakh)parts.push(under100(lakh)+' Lakh');
+  if(thousand)parts.push(under100(thousand)+' Thousand');
+  if(n)parts.push(under1000(n));
+  return 'Rupees '+parts.join(' ');
+}
+q('daRate').addEventListener('change',()=>{[...tbody.rows].forEach(r=>r.querySelector('.daRate').value=q('daRate').value);calculateAll();});
+q('newHraRate').addEventListener('change',()=>{[...tbody.rows].forEach(r=>r.querySelector('.newHraRate').value=q('newHraRate').value);calculateAll();});
+q('oldHraRate').addEventListener('change',()=>{[...tbody.rows].forEach(r=>r.querySelector('.oldHraRate').value=q('oldHraRate').value);calculateAll();});
+
+(function init(){
+  const d=new Date(); q('billDate').value=d.toISOString().slice(0,10);
+  q('billMonth').value=d.toLocaleString('en-IN',{month:'long',year:'numeric'});
+  addEmployee({
+    empId:'14008897', empName:'Dr. Ch. Vishnu Murty', designation:'Principal',
+    scale:'131400-217100', monthlyBasic:'157600', from:'2026-07-01', to:'2026-07-12',
+    daRate:'50', newHraRate:'18', oldHraRate:'10'
+  });
+})();
+</script>
+</body>
+</html>
