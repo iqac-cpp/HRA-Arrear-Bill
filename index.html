@@ -94,6 +94,9 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
         <div class="field"><label>DDO Designation</label><input id="ddoDesignation" value="PRINCIPAL"></div>
         <div class="field"><label>Bill No.</label><input id="billNo"></div>
         <div class="field"><label>Bill Date</label><input id="billDate" type="date"></div>
+        <div class="field"><label>Default HRA To Be Drawn</label><select id="officeTbHra"></select></div>
+        <div class="field"><label>Default HRA Already Drawn</label><select id="officeAdHra"></select></div>
+        <div class="field span2"><label>Common HRA Rule</label><input value="Same HRA rates apply to all employees in this bill" readonly></div>
         <div class="field span4"><label>Proceedings / Reason for HRA Difference</label><textarea id="billReason"></textarea></div>
       </div>
     </div>
@@ -277,8 +280,6 @@ function addEmployee(data={}){
 
         <div class="field"><label>Bill From Date</label><input class="billFrom" type="date" value="${data.billFrom||'2024-07-01'}"></div>
         <div class="field"><label>Bill To Date</label><input class="billTo" type="date" value="${data.billTo||'2026-09-30'}"></div>
-        <div class="field"><label>Default HRA To Be Drawn</label><select class="defaultTbHra">${hraOptions(data.defaultTbHra||20)}</select></div>
-        <div class="field"><label>Default HRA Already Drawn</label><select class="defaultAdHra">${hraOptions(data.defaultAdHra||10)}</select></div>
 
         <div class="field"><label>GPF / Deduction</label><input class="gpf" type="number" value="${data.gpf||0}"></div>
         <div class="field"><label>IT / Other Deduction</label><input class="it" type="number" value="${data.it||0}"></div>
@@ -291,11 +292,11 @@ function addEmployee(data={}){
           <thead>
             <tr>
               <th rowspan="2">Sl.</th><th rowspan="2">Period</th><th rowspan="2">Days</th><th rowspan="2">Basic Pay</th>
-              <th colspan="4">TO BE DRAWN</th><th colspan="4">ALREADY DRAWN</th><th colspan="4">DIFFERENCE</th>
+              <th colspan="3">TO BE DRAWN</th><th colspan="3">ALREADY DRAWN</th><th colspan="4">DIFFERENCE</th><th rowspan="2">DA Rate</th>
             </tr>
             <tr>
-              <th>DA Rate</th><th>DA</th><th>HRA Rate</th><th>HRA</th>
-              <th>DA Rate</th><th>DA</th><th>HRA Rate</th><th>HRA</th>
+              <th>DA</th><th>HRA Rate</th><th>HRA</th>
+              <th>DA</th><th>HRA Rate</th><th>HRA</th>
               <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th>
             </tr>
           </thead>
@@ -303,14 +304,14 @@ function addEmployee(data={}){
           <tfoot>
             <tr>
               <th colspan="4" class="num">Employee Total</th>
-              <th></th><th class="t-tb-da"></th><th></th><th class="t-tb-hra"></th>
-              <th></th><th class="t-ad-da"></th><th></th><th class="t-ad-hra"></th>
-              <th class="t-d-basic"></th><th class="t-d-da"></th><th class="t-d-hra"></th><th class="t-d-gross"></th>
+              <th class="t-tb-da"></th><th></th><th class="t-tb-hra"></th>
+              <th class="t-ad-da"></th><th></th><th class="t-ad-hra"></th>
+              <th class="t-d-basic"></th><th class="t-d-da"></th><th class="t-d-hra"></th><th class="t-d-gross"></th><th></th>
             </tr>
           </tfoot>
         </table>
       </div>
-      <div class="hint">DA and HRA are dropdowns on every month row. DA shows 53% from 01.07.2024 and 55% from 01.01.2025. HRA dropdowns show percentage values only.</div>
+      <div class="hint">HRA rates are common for the entire bill and are selected in Office & Bill Details. DA is common to both sides and is shown once in the last column of each month row.</div>
     </div>`;
   q('employees').appendChild(div);
 
@@ -320,7 +321,7 @@ function addEmployee(data={}){
     basic.innerHTML=basicOptions(scale.value,scaleByKey(scale.value).values[0]);
     generateSchedule(div);
   });
-  ['startingBasic','incrementMonth','billFrom','billTo','defaultTbHra','defaultAdHra'].forEach(cls=>{
+  ['startingBasic','incrementMonth','billFrom','billTo'].forEach(cls=>{
     div.querySelector('.'+cls).addEventListener('change',()=>generateSchedule(div));
   });
   ['gpf','it'].forEach(cls=>div.querySelector('.'+cls).addEventListener('input',updateGrandSummary));
@@ -349,8 +350,8 @@ function generateSchedule(card){
     const monthlyBasic=nextStage(ev(card,'scale'),ev(card,'startingBasic'),incCount);
     const proportionBasic=Math.round(monthlyBasic*seg.days/seg.dim);
     const autoDa=defaultDaForDate(seg.from);
-    const tbHra=ev(card,'defaultTbHra')||hraDefaultForDa(autoDa,'Y');
-    const adHra=ev(card,'defaultAdHra')||10;
+    const tbHra=q('officeTbHra').value||20;
+    const adHra=q('officeAdHra').value||10;
 
     const tr=document.createElement('tr');
     tr.dataset.fullBasic=monthlyBasic;
@@ -361,33 +362,34 @@ function generateSchedule(card){
       <td class="center">${seg.days}/${seg.dim}</td>
       <td class="computed num">${cell(proportionBasic)}<div style="font-size:9px;font-weight:400;color:#667">Stage: ${cell(monthlyBasic)}</div></td>
 
-      <td><select class="tbDaRate">${daOptions(autoDa)}</select></td>
       <td class="computed num tbDa">0</td>
-      <td><select class="tbHraRate">${hraOptions(tbHra)}</select></td>
+      <td class="computed center tbHraRate">${tbHra}%</td>
       <td class="computed num tbHra">0</td>
 
-      <td><select class="adDaRate">${daOptions(autoDa)}</select></td>
       <td class="computed num adDa">0</td>
-      <td><select class="adHraRate">${hraOptions(adHra)}</select></td>
+      <td class="computed center adHraRate">${adHra}%</td>
       <td class="computed num adHra">0</td>
 
       <td class="computed num dBasic">0</td>
       <td class="computed num dDa">0</td>
       <td class="computed num dHra">0</td>
-      <td class="computed num dGross">0</td>`;
+      <td class="computed num dGross">0</td>
+      <td class="computed center daRate">${autoDa}%</td>`;
     body.appendChild(tr);
-    tr.querySelectorAll('select').forEach(s=>s.addEventListener('change',()=>calculateMonthRow(card,tr)));
     calculateMonthRow(card,tr);
   });
   updateEmployeeTotals(card);
 }
 function calculateMonthRow(card,tr){
   const basic=n(tr.dataset.proportionBasic);
-  const tbDa=Math.round(basic*n(tr.querySelector('.tbDaRate').value)/100);
-  const tbHra=Math.round(basic*n(tr.querySelector('.tbHraRate').value)/100);
-  const adDa=Math.round(basic*n(tr.querySelector('.adDaRate').value)/100);
-  const adHra=Math.round(basic*n(tr.querySelector('.adHraRate').value)/100);
-  const dBasic=0,dDa=tbDa-adDa,dHra=tbHra-adHra,dGross=dBasic+dDa+dHra;
+  const daRate=n((tr.querySelector('.daRate')?.textContent||'0').replace('%',''));
+  const tbHraRate=n((tr.querySelector('.tbHraRate')?.textContent||'0').replace('%',''));
+  const adHraRate=n((tr.querySelector('.adHraRate')?.textContent||'0').replace('%',''));
+  const tbDa=Math.round(basic*daRate/100);
+  const tbHra=Math.round(basic*tbHraRate/100);
+  const adDa=tbDa;
+  const adHra=Math.round(basic*adHraRate/100);
+  const dBasic=0,dDa=0,dHra=tbHra-adHra,dGross=dHra;
   tr.querySelector('.tbDa').textContent=cell(tbDa);
   tr.querySelector('.tbHra').textContent=cell(tbHra);
   tr.querySelector('.adDa').textContent=cell(adDa);
@@ -402,12 +404,15 @@ function employeeTotals(card){
   const t={tbDa:0,tbHra:0,adDa:0,adHra:0,dBasic:0,dDa:0,dHra:0,dGross:0};
   [...card.querySelectorAll('.schedule-table tbody tr')].forEach(tr=>{
     const basic=n(tr.dataset.proportionBasic);
-    const tbDa=Math.round(basic*n(tr.querySelector('.tbDaRate').value)/100);
-    const tbHra=Math.round(basic*n(tr.querySelector('.tbHraRate').value)/100);
-    const adDa=Math.round(basic*n(tr.querySelector('.adDaRate').value)/100);
-    const adHra=Math.round(basic*n(tr.querySelector('.adHraRate').value)/100);
+    const daRate=n((tr.querySelector('.daRate')?.textContent||'0').replace('%',''));
+    const tbHraRate=n((tr.querySelector('.tbHraRate')?.textContent||'0').replace('%',''));
+    const adHraRate=n((tr.querySelector('.adHraRate')?.textContent||'0').replace('%',''));
+    const tbDa=Math.round(basic*daRate/100);
+    const tbHra=Math.round(basic*tbHraRate/100);
+    const adDa=tbDa;
+    const adHra=Math.round(basic*adHraRate/100);
     t.tbDa+=tbDa;t.tbHra+=tbHra;t.adDa+=adDa;t.adHra+=adHra;
-    t.dDa+=tbDa-adDa;t.dHra+=tbHra-adHra;t.dGross+=(tbDa-adDa)+(tbHra-adHra);
+    t.dDa+=0;t.dHra+=tbHra-adHra;t.dGross+=tbHra-adHra;
   });
   return t;
 }
@@ -430,16 +435,11 @@ function updateGrandSummary(){
   q('sumHra').textContent=money(t.hra);q('sumGross').textContent=money(t.gross);q('sumDed').textContent=money(t.ded);q('sumNet').textContent=money(t.net);
 }
 function serialize(){
-  const office={};['officeName','stoCode','stoName','ddoCode','ddoDesignation','billNo','billDate','billReason'].forEach(id=>office[id]=q(id).value);
+  const office={};['officeName','stoCode','stoName','ddoCode','ddoDesignation','billNo','billDate','officeTbHra','officeAdHra','billReason'].forEach(id=>office[id]=q(id).value);
   const employees=empCards().map(card=>({
     empId:ev(card,'empId'),empName:ev(card,'empName'),designation:ev(card,'designation'),
     scaleKey:ev(card,'scale'),startingBasic:ev(card,'startingBasic'),incrementMonth:ev(card,'incrementMonth'),
-    billFrom:ev(card,'billFrom'),billTo:ev(card,'billTo'),defaultTbHra:ev(card,'defaultTbHra'),
-    defaultAdHra:ev(card,'defaultAdHra'),gpf:ev(card,'gpf'),it:ev(card,'it'),bank:ev(card,'bank'),ifsc:ev(card,'ifsc'),
-    schedule:[...card.querySelectorAll('.schedule-table tbody tr')].map(tr=>({
-      tbDa:tr.querySelector('.tbDaRate').value,tbHra:tr.querySelector('.tbHraRate').value,
-      adDa:tr.querySelector('.adDaRate').value,adHra:tr.querySelector('.adHraRate').value
-    }))
+    billFrom:ev(card,'billFrom'),billTo:ev(card,'billTo'),gpf:ev(card,'gpf'),it:ev(card,'it'),bank:ev(card,'bank'),ifsc:ev(card,'ifsc')
   }));
   return {office,employees};
 }
@@ -453,61 +453,6 @@ function loadDraft(){
   q('employees').innerHTML='';
   (d.employees||[]).forEach(emp=>{
     addEmployee(emp);
-    const card=empCards().at(-1);
-    const rows=[...card.querySelectorAll('.schedule-table tbody tr')];
-    (emp.schedule||[]).forEach((s,i)=>{
-      if(!rows[i])return;
-      rows[i].querySelector('.tbDaRate').value=s.tbDa;
-      rows[i].querySelector('.tbHraRate').value=s.tbHra;
-      rows[i].querySelector('.adDaRate').value=s.adDa;
-      rows[i].querySelector('.adHraRate').value=s.adHra;
-      calculateMonthRow(card,rows[i]);
-    });
-  });
-  if(!empCards().length)addEmployee();
-  updateGrandSummary();
-}
-function newBill(){
-  if(!confirm('Start a new bill? Current unsaved data will be cleared.'))return;
-  localStorage.removeItem('hraArrearV3');q('employees').innerHTML='';addEmployee();updateGrandSummary()
-}
-function printBill(){
-  generateAllSchedules();
-  const valid=empCards().filter(c=>ev(c,'empName').trim());
-  if(!valid.length){alert('Enter at least one employee name.');return}
-  q('pOffice').textContent=q('officeName').value;
-  q('pDdo').textContent=q('ddoCode').value;q('pSto').textContent=q('stoName').value;
-  q('pBillNo').textContent=q('billNo').value||'________';q('pBillDate').textContent=iso(q('billDate').value)||'________';
-  q('pReason').textContent=q('billReason').value;q('pSign').textContent=(q('ddoDesignation').value||'DDO')+' / DDO';
-
-  const box=q('printEmployees');box.innerHTML='';
-  valid.forEach((card,idx)=>{
-    const wrap=document.createElement('div');wrap.className='print-emp';
-    const name=ev(card,'empName'),id=ev(card,'empId'),des=ev(card,'designation');
-    wrap.innerHTML=`<h4>${idx+1}. ${name}${id?' | '+id:''}${des?' | '+des:''} | ${scaleByKey(ev(card,'scale')).display} | Increment: ${ev(card,'incrementMonth')==='jan'?'1 January':'1 July'}</h4>
-    <table class="bill-table">
-      <thead><tr>
-        <th rowspan="2">Sl.</th><th rowspan="2">Period</th><th rowspan="2">Days</th><th rowspan="2">Basic</th>
-        <th colspan="4">TO BE DRAWN</th><th colspan="4">ALREADY DRAWN</th><th colspan="4">DIFFERENCE</th>
-      </tr><tr>
-        <th>DA%</th><th>DA</th><th>HRA%</th><th>HRA</th>
-        <th>DA%</th><th>DA</th><th>HRA%</th><th>HRA</th>
-        <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th>
-      </tr></thead><tbody></tbody></table>`;
-    const pb=wrap.querySelector('tbody');
-    [...card.querySelectorAll('.schedule-table tbody tr')].forEach((tr,i)=>{
-      const r=document.createElement('tr');
-      const basic=n(tr.dataset.proportionBasic);
-      const tbDaR=n(tr.querySelector('.tbDaRate').value),tbHraR=n(tr.querySelector('.tbHraRate').value);
-      const adDaR=n(tr.querySelector('.adDaRate').value),adHraR=n(tr.querySelector('.adHraRate').value);
-      const tbDa=Math.round(basic*tbDaR/100),tbHra=Math.round(basic*tbHraR/100);
-      const adDa=Math.round(basic*adDaR/100),adHra=Math.round(basic*adHraR/100);
-      r.innerHTML=`<td>${i+1}</td><td>${tr.children[1].textContent}</td><td>${tr.children[2].textContent}</td><td class="num">${cell(basic)}</td>
-      <td>${tbDaR}%</td><td class="num">${cell(tbDa)}</td><td>${tbHraR}%</td><td class="num">${cell(tbHra)}</td>
-      <td>${adDaR}%</td><td class="num">${cell(adDa)}</td><td>${adHraR}%</td><td class="num">${cell(adHra)}</td>
-      <td class="num">0</td><td class="num">${cell(tbDa-adDa)}</td><td class="num">${cell(tbHra-adHra)}</td><td class="num">${cell((tbDa-adDa)+(tbHra-adHra))}</td>`;
-      pb.appendChild(r);
-    });
     const t=employeeTotals(card);
     const foot=document.createElement('tfoot');
     foot.innerHTML=`<tr><th colspan="13" class="num">Employee Gross Arrear</th><th colspan="3" class="num">${cell(t.dGross)}</th></tr>`;
@@ -531,10 +476,14 @@ function numberToIndianWords(num){
 
 (function init(){
   const d=new Date();q('billDate').value=d.toISOString().slice(0,10);
+  q('officeTbHra').innerHTML=hraOptions(20);
+  q('officeAdHra').innerHTML=hraOptions(10);
+  q('officeTbHra').addEventListener('change',generateAllSchedules);
+  q('officeAdHra').addEventListener('change',generateAllSchedules);
   addEmployee({
     empId:'14008897',empName:'Dr. Ch. Vishnu Murty',designation:'Principal',
     scaleKey:'ugc-al14',startingBasic:157600,incrementMonth:'jan',
-    billFrom:'2024-07-01',billTo:'2026-09-30',defaultTbHra:20,defaultAdHra:10
+    billFrom:'2024-07-01',billTo:'2026-09-30'
   });
 })();
 </script>
