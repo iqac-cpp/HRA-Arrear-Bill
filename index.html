@@ -1,491 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HRA Arrear Bill Software V3</title>
-<style>
-:root{
-  --bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#647084;--line:#d8deea;
-  --primary:#234a84;--primary2:#17345f;--soft:#edf3fc;--danger:#b42318;--ok:#067647;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
-.app{max-width:1500px;margin:auto;padding:18px}
-.topbar{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:14px}
-h1{margin:0;font-size:25px;color:var(--primary2)}
-.subtitle{color:var(--muted);font-size:13px;margin-top:6px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-button{border:0;border-radius:7px;padding:9px 13px;font-weight:700;cursor:pointer}
-.primary{background:var(--primary);color:#fff}
-.secondary{background:#fff;border:1px solid var(--primary);color:var(--primary)}
-.danger{background:#fff2f0;border:1px solid #efc3bf;color:var(--danger)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:14px;box-shadow:0 2px 8px rgba(20,32,60,.04)}
-.card h2{margin:0;padding:13px 15px;font-size:16px;background:#fbfcfe;border-bottom:1px solid var(--line)}
-.body{padding:15px}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
-.field label{display:block;font-size:12px;font-weight:700;color:#46536a;margin-bottom:5px}
-.field input,.field select,.field textarea{width:100%;padding:8px 9px;border:1px solid #cbd3e1;border-radius:6px;background:#fff;font-size:13px}
-.field textarea{min-height:66px}
-.span2{grid-column:span 2}.span4{grid-column:span 4}
-.hint{font-size:12px;color:var(--muted);margin-top:7px}
-.emp-card{border:1px solid var(--line);border-radius:9px;margin-bottom:14px;overflow:hidden}
-.emp-head{display:flex;justify-content:space-between;align-items:center;background:#f6f9fd;padding:10px 12px;border-bottom:1px solid var(--line)}
-.emp-head strong{color:var(--primary2)}
-.badge{display:inline-block;background:var(--soft);padding:5px 9px;border-radius:14px;color:var(--primary2);font-size:12px;font-weight:700}
-.emp-body{padding:12px}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:10px}
-table{border-collapse:collapse;width:100%}
-th,td{border-right:1px solid #e6e9ef;border-bottom:1px solid #e0e5ed;padding:5px;font-size:11px;vertical-align:middle}
-th{background:#eef3fa;text-align:center;color:#2d3a50;white-space:nowrap}
-td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-radius:4px;padding:5px;font-size:11px}
-.num{text-align:right}.center{text-align:center}.computed{font-weight:700;background:#fafbfd;white-space:nowrap}
-.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.kpi{border:1px solid var(--line);border-radius:8px;padding:11px;background:#fbfcfe}
-.kpi span{display:block;font-size:11px;color:var(--muted);font-weight:700}
-.kpi strong{display:block;font-size:20px;color:var(--primary2);margin-top:4px}
-.status{font-size:12px;color:var(--ok);font-weight:700}
-.print-area{display:none}
-.print-title{text-align:center}
-.print-title h2,.print-title h3{margin:3px 0}
-.print-meta{display:flex;justify-content:space-between;font-size:11px;margin:8px 0}
-.print-emp{margin-top:12px}
-.print-emp h4{margin:5px 0;font-size:12px}
-.bill-table th,.bill-table td{border:1px solid #000;padding:3px;font-size:9px}
-.bill-table th{background:#fff;color:#000}
-.sign{display:flex;justify-content:flex-end;margin-top:35px;font-weight:700}
-@media(max-width:950px){.grid{grid-template-columns:repeat(2,1fr)}.span4{grid-column:span 2}.summary{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.app{padding:8px}.topbar{flex-direction:column}.grid{grid-template-columns:1fr}.span2,.span4{grid-column:span 1}.summary{grid-template-columns:1fr}}
-@media print{
-  body{background:#fff}
-  .app>*:not(.print-area){display:none!important}
-  .print-area{display:block!important;color:#000;font-family:"Times New Roman",serif}
-  @page{size:A4 landscape;margin:7mm}
-  .print-emp{break-inside:avoid}
-}
-</style>
-</head>
-<body>
-<div class="app">
-  <div class="topbar">
-    <div>
-      <h1>HRA Arrear Bill Software</h1>
-      <div class="subtitle">Month-wise UGC arrear calculation with annual increment progression</div>
-    </div>
-    <div class="actions">
-      <button class="secondary" onclick="saveDraft()">Save Draft</button>
-      <button class="secondary" onclick="loadDraft()">Load Draft</button>
-      <button class="primary" onclick="addEmployee()">+ Add Employee</button>
-      <button class="primary" onclick="generateAllSchedules()">Generate All</button>
-      <button class="primary" onclick="printBill()">Preview / Print</button>
-      <button class="danger" onclick="newBill()">New Bill</button>
-      <span class="status" id="status"></span>
-    </div>
-  </div>
+@media print {
 
-  <section class="card">
-    <h2>1. Office & Bill Details</h2>
-    <div class="body">
-      <div class="grid">
-        <div class="field span2"><label>Name of College / Office</label><input id="officeName" value="Government Degree College, SALUR"></div>
-        <div class="field"><label>STO Code</label><input id="stoCode" value="2204"></div>
-        <div class="field"><label>STO Office Name</label><input id="stoName" value="Salur"></div>
-        <div class="field"><label>DDO Code</label><input id="ddoCode" value="22100304001"></div>
-        <div class="field"><label>DDO Designation</label><input id="ddoDesignation" value="PRINCIPAL"></div>
-        <div class="field"><label>Bill No.</label><input id="billNo"></div>
-        <div class="field"><label>Bill Date</label><input id="billDate" type="date"></div>
-        <div class="field"><label>Default HRA To Be Drawn</label><select id="officeTbHra"></select></div>
-        <div class="field"><label>Default HRA Already Drawn</label><select id="officeAdHra"></select></div>
-        <div class="field span2"><label>Common HRA Rule</label><input value="Same HRA rates apply to all employees in this bill" readonly></div>
-        <div class="field span4"><label>Proceedings / Reason for HRA Difference</label><textarea id="billReason"></textarea></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>2. Employees</h2>
-    <div class="body">
-      <div class="hint" style="margin-bottom:10px">
-        Starting Basic Pay means the pay applicable on the bill start date. For January increment employees, each future 1 January moves to the next pay stage. For July increment employees, each future 1 July moves to the next stage.
-      </div>
-      <div id="employees"></div>
-      <div><span class="badge" id="empCount">0 / 20 employees</span></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>3. Consolidated Bill Summary</h2>
-    <div class="body">
-      <div class="summary">
-        <div class="kpi"><span>Total HRA Difference</span><strong id="sumHra">₹0</strong></div>
-        <div class="kpi"><span>Total Gross Arrear</span><strong id="sumGross">₹0</strong></div>
-        <div class="kpi"><span>Total Deductions</span><strong id="sumDed">₹0</strong></div>
-        <div class="kpi"><span>Net Payable</span><strong id="sumNet">₹0</strong></div>
-      </div>
-    </div>
-  </section>
-
-  <div class="print-area" id="printArea">
-    <div class="print-title">
-      <h2>HRA DIFFERENCE ARREAR BILL</h2>
-      <h3 id="pOffice"></h3>
-    </div>
-    <div class="print-meta">
-      <div><b>DDO Code:</b> <span id="pDdo"></span> &nbsp; <b>STO:</b> <span id="pSto"></span></div>
-      <div><b>Bill No:</b> <span id="pBillNo"></span> &nbsp; <b>Date:</b> <span id="pBillDate"></span></div>
-    </div>
-    <div id="pReason" style="font-size:11px;margin:6px 0"></div>
-    <div id="printEmployees"></div>
-    <div style="margin-top:10px;font-size:11px"><b>Net amount in words:</b> <span id="pWords"></span></div>
-    <div class="sign" id="pSign">PRINCIPAL / DDO</div>
-  </div>
-</div>
-
-<script>
-const MAX_EMP = 20;
-
-const UGC_PAY_SCALES = [
-  { key:'ugc-al10', label:'Academic Level 10: 57700-182400', display:'UGC AL 10: 57700-182400', values:[57700,59400,61200,63000,64900,66800,68800,70900,73000,75200,77500,79800,82200,84700,87200,89800,92500,95300,98200,101100,104100,107200,110400,113700,117100,120600,124200,127900,131700,135700,139800,144000,148300,152700,157300,162000,166900,171900,177100,182400] },
-  { key:'ugc-al11', label:'Academic Level 11: 68900-205500', display:'UGC AL 11: 68900-205500', values:[68900,71000,73100,75300,77600,79900,82300,84800,87300,89900,92600,95400,98300,101200,104200,107300,110500,113800,117200,120700,124300,128000,131800,135800,139900,144100,148400,152900,157500,162200,167100,172100,177300,182600,188100,193700,199500,205500] },
-  { key:'ugc-al12', label:'Academic Level 12: 79800-211500', display:'UGC AL 12: 79800-211500', values:[79800,82200,84100,87200,89800,92500,95300,98200,101100,104100,107200,110400,113700,117100,120600,124200,127900,131700,135700,139800,144000,148300,152700,157300,162000,166900,171900,177100,182400,187900,193500,199300,205300,211500] },
-  { key:'ugc-al13a', label:'Academic Level 13A: 131400-217100', display:'UGC AL 13A: 131400-217100', values:[131400,135300,139400,143600,147900,152300,156900,161600,166400,171400,176500,181800,187300,192900,198700,204100,210800,217100] },
-  { key:'ugc-al14', label:'Academic Level 14: 144200-218200', display:'UGC AL 14: 144200-218200', values:[144200,148500,153000,157600,162300,167200,172200,177400,182100,188200,193800,199600,205600,211800,218200] },
-  { key:'ugc-al15', label:'Academic Level 15: 182200-224100', display:'UGC AL 15: 182200-224100', values:[182200,187700,193300,199100,205100,211300,217600,224100] }
-];
-
-const UGC_DA_RATES = [
-  {effectiveFrom:'2024-07-01',label:'53%',rate:53},
-  {effectiveFrom:'2025-01-01',label:'55%',rate:55}
-];
-
-const UGC_HRA_RATES = [
-  {rate:9,label:'9%'},
-  {rate:10,label:'10%'},
-  {rate:16,label:'16%'},
-  {rate:18,label:'18%'},
-  {rate:20,label:'20%'},
-  {rate:24,label:'24%'},
-  {rate:27,label:'27%'},
-  {rate:30,label:'30%'}
-];
-
-function q(id){return document.getElementById(id)}
-function n(v){const x=parseFloat(v);return Number.isFinite(x)?x:0}
-function money(v){return '₹'+Math.round(n(v)).toLocaleString('en-IN')}
-function cell(v){return Math.round(n(v)).toLocaleString('en-IN')}
-function iso(d){if(!d)return'';const [y,m,dd]=d.split('-');return `${dd}.${m}.${y}`}
-function parseDate(s){return new Date(s+'T00:00:00')}
-function dateISO(d){
-  const y=d.getFullYear();
-  const m=String(d.getMonth()+1).padStart(2,'0');
-  const day=String(d.getDate()).padStart(2,'0');
-  return `${y}-${m}-${day}`;
-}
-function daysInclusive(a,b){return Math.round((b-a)/86400000)+1}
-function daysInMonth(y,m){return new Date(y,m+1,0).getDate()}
-function endOfMonth(d){return new Date(d.getFullYear(),d.getMonth()+1,0)}
-function maxDate(a,b){return a>b?a:b}
-function minDate(a,b){return a<b?a:b}
-
-function scaleByKey(key){return UGC_PAY_SCALES.find(s=>s.key===key)||UGC_PAY_SCALES[0]}
-function scaleOptions(selected=''){
-  return UGC_PAY_SCALES.map(s=>`<option value="${s.key}" ${s.key===selected?'selected':''}>${s.label}</option>`).join('')
-}
-function basicOptions(scaleKey,selected){
-  const s=scaleByKey(scaleKey);
-  return s.values.map(v=>`<option value="${v}" ${String(v)===String(selected)?'selected':''}>${v.toLocaleString('en-IN')}</option>`).join('')
-}
-function daOptions(selected){
-  return UGC_DA_RATES.map(x=>`<option value="${x.rate}" ${String(x.rate)===String(selected)?'selected':''}>${x.rate}%</option>`).join('')
-}
-function hraOptions(selected){
-  return UGC_HRA_RATES.map(x=>`<option value="${x.rate}" ${String(x.rate)===String(selected)?'selected':''}>${x.rate}%</option>`).join('')
-}
-function defaultDaForDate(dateStr){
-  if(!dateStr)return 53;
-  let found=UGC_DA_RATES[0];
-  UGC_DA_RATES.forEach(x=>{if(x.effectiveFrom<=dateStr)found=x});
-  return found.rate;
-}
-function hraDefaultForDa(da,category='Y'){
-  const d=n(da);
-  if(d>=50)return category==='X'?30:category==='Y'?20:10;
-  if(d>=25)return category==='X'?27:category==='Y'?18:9;
-  return category==='X'?24:category==='Y'?16:8;
-}
-function nextStage(scaleKey,current,steps){
-  const vals=scaleByKey(scaleKey).values;
-  let idx=vals.indexOf(Number(current));
-  if(idx<0) idx=0;
-  return vals[Math.min(idx+steps,vals.length-1)];
-}
-function incrementsAfterStart(start, segmentDate, incrementMonth){
-  if(!start||!segmentDate)return 0;
-  const sm=parseDate(start), target=parseDate(segmentDate);
-  let count=0;
-  let y=sm.getFullYear();
-  const month=incrementMonth==='jan'?0:6;
-  while(y<=target.getFullYear()){
-    const inc=new Date(y,month,1);
-    if(inc>sm && inc<=target) count++;
-    y++;
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
   }
-  return count;
-}
-function monthSegments(fromStr,toStr){
-  if(!fromStr||!toStr)return[];
-  const from=parseDate(fromStr),to=parseDate(toStr);
-  if(to<from)return[];
-  const rows=[];
-  let cur=new Date(from.getFullYear(),from.getMonth(),1);
-  while(cur<=to){
-    const segFrom=maxDate(from,new Date(cur.getFullYear(),cur.getMonth(),1));
-    const segTo=minDate(to,endOfMonth(cur));
-    rows.push({from:dateISO(segFrom),to:dateISO(segTo),days:daysInclusive(segFrom,segTo),dim:daysInMonth(cur.getFullYear(),cur.getMonth())});
-    cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
+
+  body {
+    color: #000 !important;
+    font-family: "Times New Roman", serif !important;
   }
-  return rows;
-}
-function empCards(){return [...document.querySelectorAll('.emp-card')]}
 
-function addEmployee(data={}){
-  if(empCards().length>=MAX_EMP){alert('Maximum 20 employees are allowed.');return}
-  const index=empCards().length+1;
-  const scaleKey=data.scaleKey||'ugc-al14';
-  const startingBasic=data.startingBasic||157600;
-  const div=document.createElement('div');
-  div.className='emp-card';
-  div.innerHTML=`
-    <div class="emp-head">
-      <strong>Employee <span class="emp-no">${index}</span></strong>
-      <div>
-        <button class="secondary" onclick="generateSchedule(this.closest('.emp-card'))">Generate Month-wise Schedule</button>
-        <button class="danger" onclick="removeEmployee(this.closest('.emp-card'))">Remove</button>
-      </div>
-    </div>
-    <div class="emp-body">
-      <div class="grid">
-        <div class="field"><label>Employee ID</label><input class="empId" value="${data.empId||''}"></div>
-        <div class="field span2"><label>Employee Name</label><input class="empName" value="${data.empName||''}"></div>
-        <div class="field"><label>Designation</label><input class="designation" value="${data.designation||''}"></div>
+  .app > *:not(.print-area) {
+    display: none !important;
+  }
 
-        <div class="field span2"><label>UGC Pay Scale</label><select class="scale">${scaleOptions(scaleKey)}</select></div>
-        <div class="field"><label>Starting Basic Pay</label><select class="startingBasic">${basicOptions(scaleKey,startingBasic)}</select></div>
-        <div class="field"><label>Annual Increment Month</label>
-          <select class="incrementMonth">
-            <option value="jan" ${(data.incrementMonth||'jan')==='jan'?'selected':''}>1 January</option>
-            <option value="jul" ${data.incrementMonth==='jul'?'selected':''}>1 July</option>
-          </select>
-        </div>
+  .print-area {
+    display: block !important;
+    width: 100% !important;
+    color: #000 !important;
+    background: #fff !important;
+  }
 
-        <div class="field"><label>Bill From Date</label><input class="billFrom" type="date" value="${data.billFrom||'2024-07-01'}"></div>
-        <div class="field"><label>Bill To Date</label><input class="billTo" type="date" value="${data.billTo||'2026-09-30'}"></div>
+  @page {
+    size: A4 landscape;
+    margin: 7mm;
+  }
 
-        <div class="field"><label>GPF / Deduction</label><input class="gpf" type="number" value="${data.gpf||0}"></div>
-        <div class="field"><label>IT / Other Deduction</label><input class="it" type="number" value="${data.it||0}"></div>
-        <div class="field"><label>Bank A/c</label><input class="bank" value="${data.bank||''}"></div>
-        <div class="field"><label>IFSC</label><input class="ifsc" value="${data.ifsc||''}"></div>
-      </div>
+  .print-title {
+    text-align: center;
+  }
 
-      <div class="table-wrap">
-        <table class="schedule-table">
-          <thead>
-            <tr>
-              <th rowspan="2">Sl.</th><th rowspan="2">Period</th><th rowspan="2">Days</th><th rowspan="2">Basic Pay</th>
-              <th colspan="3">TO BE DRAWN</th><th colspan="3">ALREADY DRAWN</th><th colspan="4">DIFFERENCE</th><th rowspan="2">DA Rate</th>
-            </tr>
-            <tr>
-              <th>DA</th><th>HRA Rate</th><th>HRA</th>
-              <th>DA</th><th>HRA Rate</th><th>HRA</th>
-              <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-          <tfoot>
-            <tr>
-              <th colspan="4" class="num">Employee Total</th>
-              <th class="t-tb-da"></th><th></th><th class="t-tb-hra"></th>
-              <th class="t-ad-da"></th><th></th><th class="t-ad-hra"></th>
-              <th class="t-d-basic"></th><th class="t-d-da"></th><th class="t-d-hra"></th><th class="t-d-gross"></th><th></th>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-      <div class="hint">HRA rates are common for the entire bill and are selected in Office & Bill Details. DA is common to both sides and is shown once in the last column of each month row.</div>
-    </div>`;
-  q('employees').appendChild(div);
+  .print-title h2,
+  .print-title h3 {
+    margin: 2px 0;
+  }
 
-  const scale=div.querySelector('.scale');
-  const basic=div.querySelector('.startingBasic');
-  scale.addEventListener('change',()=>{
-    basic.innerHTML=basicOptions(scale.value,scaleByKey(scale.value).values[0]);
-    generateSchedule(div);
-  });
-  ['startingBasic','incrementMonth','billFrom','billTo'].forEach(cls=>{
-    div.querySelector('.'+cls).addEventListener('change',()=>generateSchedule(div));
-  });
-  ['gpf','it'].forEach(cls=>div.querySelector('.'+cls).addEventListener('input',updateGrandSummary));
+  .print-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    margin: 6px 0;
+  }
 
-  renumberEmployees();
-  generateSchedule(div);
-}
-function removeEmployee(card){
-  card.remove();renumberEmployees();updateGrandSummary()
-}
-function renumberEmployees(){
-  empCards().forEach((c,i)=>c.querySelector('.emp-no').textContent=i+1);
-  q('empCount').textContent=`${empCards().length} / ${MAX_EMP} employees`;
-}
-function ev(card,cls){return card.querySelector('.'+cls)?.value||''}
+  .print-emp {
+    margin-top: 10px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 
-function generateSchedule(card){
-  const body=card.querySelector('.schedule-table tbody');
-  body.innerHTML='';
-  const from=ev(card,'billFrom'),to=ev(card,'billTo');
-  const segments=monthSegments(from,to);
-  if(!segments.length){updateEmployeeTotals(card);return}
+  .print-emp h4 {
+    margin: 4px 0;
+    font-size: 11px;
+  }
 
-  segments.forEach((seg,i)=>{
-    const incCount=incrementsAfterStart(from,seg.from,ev(card,'incrementMonth'));
-    const monthlyBasic=nextStage(ev(card,'scale'),ev(card,'startingBasic'),incCount);
-    const proportionBasic=Math.round(monthlyBasic*seg.days/seg.dim);
-    const autoDa=defaultDaForDate(seg.from);
-    const tbHra=q('officeTbHra').value||20;
-    const adHra=q('officeAdHra').value||10;
+  .bill-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
 
-    const tr=document.createElement('tr');
-    tr.dataset.fullBasic=monthlyBasic;
-    tr.dataset.proportionBasic=proportionBasic;
-    tr.innerHTML=`
-      <td class="center">${i+1}</td>
-      <td style="white-space:nowrap">${iso(seg.from)} to ${iso(seg.to)}</td>
-      <td class="center">${seg.days}/${seg.dim}</td>
-      <td class="computed num">${cell(proportionBasic)}<div style="font-size:9px;font-weight:400;color:#667">Stage: ${cell(monthlyBasic)}</div></td>
+  .bill-table th,
+  .bill-table td {
+    border: 1px solid #000 !important;
+    padding: 3px;
+    font-size: 8.5px;
+    color: #000 !important;
+  }
 
-      <td class="computed num tbDa">0</td>
-      <td class="computed center tbHraRate">${tbHra}%</td>
-      <td class="computed num tbHra">0</td>
+  .bill-table th {
+    background: #fff !important;
+    color: #000 !important;
+    text-align: center;
+  }
 
-      <td class="computed num adDa">0</td>
-      <td class="computed center adHraRate">${adHra}%</td>
-      <td class="computed num adHra">0</td>
+  .bill-table td.num {
+    text-align: right;
+  }
 
-      <td class="computed num dBasic">0</td>
-      <td class="computed num dDa">0</td>
-      <td class="computed num dHra">0</td>
-      <td class="computed num dGross">0</td>
-      <td class="computed center daRate">${autoDa}%</td>`;
-    body.appendChild(tr);
-    calculateMonthRow(card,tr);
-  });
-  updateEmployeeTotals(card);
-}
-function calculateMonthRow(card,tr){
-  const basic=n(tr.dataset.proportionBasic);
-  const daRate=n((tr.querySelector('.daRate')?.textContent||'0').replace('%',''));
-  const tbHraRate=n((tr.querySelector('.tbHraRate')?.textContent||'0').replace('%',''));
-  const adHraRate=n((tr.querySelector('.adHraRate')?.textContent||'0').replace('%',''));
-  const tbDa=Math.round(basic*daRate/100);
-  const tbHra=Math.round(basic*tbHraRate/100);
-  const adDa=tbDa;
-  const adHra=Math.round(basic*adHraRate/100);
-  const dBasic=0,dDa=0,dHra=tbHra-adHra,dGross=dHra;
-  tr.querySelector('.tbDa').textContent=cell(tbDa);
-  tr.querySelector('.tbHra').textContent=cell(tbHra);
-  tr.querySelector('.adDa').textContent=cell(adDa);
-  tr.querySelector('.adHra').textContent=cell(adHra);
-  tr.querySelector('.dBasic').textContent=cell(dBasic);
-  tr.querySelector('.dDa').textContent=cell(dDa);
-  tr.querySelector('.dHra').textContent=cell(dHra);
-  tr.querySelector('.dGross').textContent=cell(dGross);
-  updateEmployeeTotals(card);
-}
-function employeeTotals(card){
-  const t={tbDa:0,tbHra:0,adDa:0,adHra:0,dBasic:0,dDa:0,dHra:0,dGross:0};
-  [...card.querySelectorAll('.schedule-table tbody tr')].forEach(tr=>{
-    const basic=n(tr.dataset.proportionBasic);
-    const daRate=n((tr.querySelector('.daRate')?.textContent||'0').replace('%',''));
-    const tbHraRate=n((tr.querySelector('.tbHraRate')?.textContent||'0').replace('%',''));
-    const adHraRate=n((tr.querySelector('.adHraRate')?.textContent||'0').replace('%',''));
-    const tbDa=Math.round(basic*daRate/100);
-    const tbHra=Math.round(basic*tbHraRate/100);
-    const adDa=tbDa;
-    const adHra=Math.round(basic*adHraRate/100);
-    t.tbDa+=tbDa;t.tbHra+=tbHra;t.adDa+=adDa;t.adHra+=adHra;
-    t.dDa+=0;t.dHra+=tbHra-adHra;t.dGross+=tbHra-adHra;
-  });
-  return t;
-}
-function updateEmployeeTotals(card){
-  const t=employeeTotals(card);
-  const map={'t-tb-da':t.tbDa,'t-tb-hra':t.tbHra,'t-ad-da':t.adDa,'t-ad-hra':t.adHra,'t-d-basic':0,'t-d-da':t.dDa,'t-d-hra':t.dHra,'t-d-gross':t.dGross};
-  Object.entries(map).forEach(([cls,val])=>{const el=card.querySelector('.'+cls);if(el)el.textContent=cell(val)});
-  updateGrandSummary();
-}
-function generateAllSchedules(){empCards().forEach(generateSchedule);updateGrandSummary()}
-function grandTotals(){
-  let hra=0,gross=0,ded=0;
-  empCards().forEach(card=>{
-    const t=employeeTotals(card);hra+=t.dHra;gross+=t.dGross;ded+=n(ev(card,'gpf'))+n(ev(card,'it'));
-  });
-  return {hra,gross,ded,net:gross-ded};
-}
-function updateGrandSummary(){
-  const t=grandTotals();
-  q('sumHra').textContent=money(t.hra);q('sumGross').textContent=money(t.gross);q('sumDed').textContent=money(t.ded);q('sumNet').textContent=money(t.net);
-}
-function serialize(){
-  const office={};['officeName','stoCode','stoName','ddoCode','ddoDesignation','billNo','billDate','officeTbHra','officeAdHra','billReason'].forEach(id=>office[id]=q(id).value);
-  const employees=empCards().map(card=>({
-    empId:ev(card,'empId'),empName:ev(card,'empName'),designation:ev(card,'designation'),
-    scaleKey:ev(card,'scale'),startingBasic:ev(card,'startingBasic'),incrementMonth:ev(card,'incrementMonth'),
-    billFrom:ev(card,'billFrom'),billTo:ev(card,'billTo'),gpf:ev(card,'gpf'),it:ev(card,'it'),bank:ev(card,'bank'),ifsc:ev(card,'ifsc')
-  }));
-  return {office,employees};
-}
-function saveDraft(){
-  localStorage.setItem('hraArrearV3',JSON.stringify(serialize()));q('status').textContent='Draft saved';setTimeout(()=>q('status').textContent='',1600)
-}
-function loadDraft(){
-  const raw=localStorage.getItem('hraArrearV3');if(!raw){alert('No saved draft found.');return}
-  const d=JSON.parse(raw);
-  Object.entries(d.office||{}).forEach(([k,v])=>{if(q(k))q(k).value=v});
-  q('employees').innerHTML='';
-  (d.employees||[]).forEach(emp=>{
-    addEmployee(emp);
-    const t=employeeTotals(card);
-    const foot=document.createElement('tfoot');
-    foot.innerHTML=`<tr><th colspan="13" class="num">Employee Gross Arrear</th><th colspan="3" class="num">${cell(t.dGross)}</th></tr>`;
-    wrap.querySelector('table').appendChild(foot);
-    box.appendChild(wrap);
-  });
-  const gt=grandTotals();q('pWords').textContent=numberToIndianWords(Math.round(gt.net))+' only';
-  window.print();
-}
-function numberToIndianWords(num){
-  if(num===0)return'Rupees Zero';
-  if(num<0)return'Minus '+numberToIndianWords(-num);
-  const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
-  const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
-  function u100(x){return x<20?a[x]:b[Math.floor(x/10)]+(x%10?' '+a[x%10]:'')}
-  function u1000(x){return x<100?u100(x):a[Math.floor(x/100)]+' Hundred'+(x%100?' '+u100(x%100):'')}
-  let parts=[],x=Math.floor(num),cr=Math.floor(x/10000000);x%=10000000;let lk=Math.floor(x/100000);x%=100000;let th=Math.floor(x/1000);x%=1000;
-  if(cr)parts.push(u1000(cr)+' Crore');if(lk)parts.push(u100(lk)+' Lakh');if(th)parts.push(u100(th)+' Thousand');if(x)parts.push(u1000(x));
-  return'Rupees '+parts.join(' ')
-}
+  .bill-table td.center {
+    text-align: center;
+  }
 
-(function init(){
-  const d=new Date();q('billDate').value=d.toISOString().slice(0,10);
-  q('officeTbHra').innerHTML=hraOptions(20);
-  q('officeAdHra').innerHTML=hraOptions(10);
-  q('officeTbHra').addEventListener('change',generateAllSchedules);
-  q('officeAdHra').addEventListener('change',generateAllSchedules);
-  addEmployee({
-    empId:'14008897',empName:'Dr. Ch. Vishnu Murty',designation:'Principal',
-    scaleKey:'ugc-al14',startingBasic:157600,incrementMonth:'jan',
-    billFrom:'2024-07-01',billTo:'2026-09-30'
-  });
-})();
-</script>
-</body>
-</html>
+  .sign {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 30px;
+    font-weight: bold;
+    page-break-inside: avoid;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+
+}
