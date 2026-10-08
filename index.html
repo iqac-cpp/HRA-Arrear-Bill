@@ -248,6 +248,180 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
   }
 }
 
+
+.bill-abstract{
+  margin-top:14px;
+}
+.bill-abstract h3{
+  text-align:center;
+  margin:6px 0;
+  font-size:14px;
+}
+@media print{
+  .bill-abstract{
+    margin-top:10px;
+    page-break-before:auto;
+    break-before:auto;
+  }
+  .bill-abstract h3{
+    font-size:12px;
+    margin:4px 0;
+  }
+}
+
+
+@media print{
+  .abstract-table{
+    table-layout:auto !important;
+  }
+  .abstract-table th,
+  .abstract-table td{
+    font-size:9px !important;
+    padding:3px 4px !important;
+    white-space:nowrap !important;
+  }
+  .abstract-table th:nth-child(3),
+  .abstract-table td:nth-child(3),
+  .abstract-table th:nth-child(4),
+  .abstract-table td:nth-child(4){
+    white-space:normal !important;
+  }
+}
+
+
+.bill-abstract{
+  page-break-before:always;
+  break-before:page;
+}
+.abstract-sign{
+  margin-top:1cm;
+  text-align:right;
+  font-weight:700;
+  font-size:11px;
+}
+.employee-print-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-top:1cm;
+  page-break-inside:avoid;
+  break-inside:avoid;
+}
+.employee-print-words{
+  font-size:10px;
+}
+.employee-print-sign{
+  font-weight:700;
+  white-space:nowrap;
+  text-align:right;
+  font-size:11px;
+}
+@media print{
+  .bill-abstract{
+    page-break-before:always !important;
+    break-before:page !important;
+  }
+  .employee-print-footer{
+    margin-top:1cm !important;
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+  }
+}
+
+
+.abstract-net-words{
+  margin-top:0.5cm;
+  font-size:11px;
+  line-height:1.2;
+}
+@media print{
+  .abstract-net-words{
+    margin-top:0.5cm !important;
+    font-size:10px !important;
+  }
+}
+
+
+.proceedings-print-area{display:none}
+@media print{
+  body.printing-proceedings .app > *{display:none !important}
+  body.printing-proceedings .proceedings-print-area{
+    display:block !important;
+    color:#000;
+    font-family:"Times New Roman",serif;
+    font-size:11.5pt;
+    line-height:1.25;
+  }
+  body.printing-proceedings .print-area{display:none !important}
+  body.printing-proceedings .proceedings-print-area p{
+    margin:7px 0;
+    text-align:justify;
+    text-indent:0.5in;
+  }
+}
+.proc-title{
+  text-align:center;
+  font-weight:700;
+  font-size:15pt;
+  margin-bottom:8px;
+}
+.proc-present{
+  text-align:center;
+  font-weight:700;
+  font-size:12pt;
+  margin-bottom:14px;
+}
+.proc-meta{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:7px;
+}
+.proc-subject{
+  text-align:justify;
+  margin-bottom:7px;
+}
+.proc-ref{margin-top:4px}
+.proc-refs{
+  margin:4px 0 7px 20px;
+  padding-left:14px;
+}
+.proc-refs li{margin:2px 0;text-align:justify}
+.proc-order{
+  text-align:center;
+  font-weight:700;
+  font-size:13pt;
+  margin:7px 0;
+}
+.proc-table-title{
+  font-weight:700;
+  margin:6px 0 3px;
+}
+.proc-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:10.5pt;
+}
+.proc-table th,.proc-table td{
+  border:1px solid #000;
+  padding:3px 5px;
+}
+.proc-table th{text-align:center}
+.proc-table td:last-child,.proc-table tfoot th:last-child{text-align:right}
+.proc-total-label{text-align:right !important}
+.proc-signature{
+  width:260px;
+  margin:18px 10px 8px auto;
+  text-align:center;
+  font-weight:700;
+  line-height:1.15;
+}
+.proc-to{margin-top:10px}
+.proc-to-list{
+  margin:4px 0 0 18px;
+  padding-left:14px;
+}
+.proc-to-list li{margin:2px 0}
+
 </style>
 </head>
 <body>
@@ -264,6 +438,7 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
       <button class="primary" onclick="generateAllSchedules()">Generate All</button>
       <button class="secondary" onclick="previewBill()">Preview Bill</button>
       <button class="primary" onclick="printBill()">Print Bill</button>
+      <button class="secondary" onclick="printProceedings()">Print Proceedings</button>
       <button class="danger" onclick="newBill()">New Bill</button>
       <span class="status" id="status"></span>
     </div>
@@ -282,7 +457,9 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
         <div class="field"><label>Bill Date</label><input id="billDate" type="date"></div>
         <div class="field"><label>Default HRA To Be Drawn</label><select id="officeTbHra"></select></div>
         <div class="field"><label>Default HRA Already Drawn</label><select id="officeAdHra"></select></div>
-        <div class="field span2"><label>Common HRA Rule</label><input value="Same HRA rates apply to all employees in this bill" readonly></div>
+        <div class="field"><label>Name of the Principal</label><input id="principalName" value="Dr. Ch. Lalitha"></div>
+        <div class="field"><label>Principal Qualification</label><input id="principalQualification" value="M.Sc., M.Phil., Ph.D."></div>
+        <div class="field span2"><label>Proceedings No.</label><input id="proceedingsNo" value="01/UGC2016/HRA/2026"></div>
         <div class="field span4"><label>Proceedings / Reason for HRA Difference</label><textarea id="billReason"></textarea></div>
       </div>
     </div>
@@ -326,10 +503,100 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
     </div>
     <div id="pReason" style="font-size:11px;margin:6px 0"></div>
     <div id="printEmployees"></div>
-    <div class="print-footer">
-      <div class="print-words"><b>Net amount in words:</b> <span id="pWords"></span></div>
-      <div class="sign" id="pSign">PRINCIPAL / DDO</div>
+
+    <div id="billAbstract" class="bill-abstract">
+      <h3>BILL ABSTRACT</h3>
+      <table class="bill-table abstract-table">
+        <thead>
+          <tr>
+            <th>Sl.</th>
+            <th>Employee ID</th>
+            <th>Employee Name</th>
+            <th>Designation</th>
+            <th>Basic Pay Total</th>
+            <th>To Be Drawn HRA</th>
+            <th>Already Drawn HRA</th>
+            <th>HRA Difference</th>
+            <th>Gross Difference</th>
+            <th>IT Deduction</th>
+            <th>GPF / Other</th>
+            <th>Net Amount</th>
+          </tr>
+        </thead>
+        <tbody id="abstractRows"></tbody>
+        <tfoot id="abstractTotal"></tfoot>
+      </table>
+      <div class="abstract-net-words">
+        <b>Total Net Amount in words:</b> <span id="abstractNetWords"></span>
+      </div>
+      <div class="abstract-sign" id="abstractSign">PRINCIPAL / DDO</div>
     </div>
+  </div>
+
+  <div class="proceedings-print-area" id="proceedingsPrintArea">
+    <div class="proc-title" id="procTitle">PROCEEDINGS OF THE PRINCIPAL, GDC CHEEPURUPALLI</div>
+    <div class="proc-present">Present: <span id="procPrincipalName"></span></div>
+
+    <div class="proc-meta">
+      <div><b>Rc.No. <span id="procProceedingsNo"></span></b></div>
+      <div><b>Dated: 06.10.2026</b></div>
+    </div>
+
+    <div class="proc-subject">
+      <b>Sub:-</b> <span id="procSubject"></span>
+    </div>
+
+    <div class="proc-ref"><b>Ref:-</b></div>
+    <ol class="proc-refs">
+      <li>G.O.Ms.No.14, Higher Education (UE) Department, dated 13.02.2019 – Implementation of UGC Revised Pay Scales, 2016 to the Teaching Staff in Universities and Colleges with effect from 01.01.2016.</li>
+      <li>Government of India, Ministry of Finance, Department of Expenditure, O.M.No.2/5/2017-E.II(B), dated 07.07.2017 – Grant of House Rent Allowance (HRA) to Central Government employees.</li>
+      <li>G.O.Ms.No. 119 FINANCE (HR.VI-PC&amp;TA) DEPARTMENT, Govt. of Andhra Pradesh Dated: 11.09.2026.</li>
+      <li id="procRefBill"></li>
+    </ol>
+
+    <div class="proc-order">ORDER</div>
+
+    <p>The teaching staff of <span class="proc-office-name"></span> are governed by the UGC Revised Pay Scales and the applicable Government orders relating to allowances. The Government of Andhra Pradesh, through the orders cited at reference 1st above, implemented the UGC Revised Pay Scales, 2016 to the teaching staff in Universities and Colleges. The applicable HRA provisions are to be regulated in accordance with the Government orders/instructions in force from time to time.</p>
+
+    <p id="procVerification"></p>
+
+    <p id="procSanction"></p>
+
+    <div class="proc-table-title">Statement of staff and HRA difference arrears</div>
+    <table class="proc-table">
+      <thead>
+        <tr>
+          <th>Sl.No.</th>
+          <th>Name of the Employee</th>
+          <th>Designation</th>
+          <th>Employee ID</th>
+          <th>HRA Difference (₹)</th>
+        </tr>
+      </thead>
+      <tbody id="procEmployeeRows"></tbody>
+      <tfoot>
+        <tr>
+          <th colspan="4" class="proc-total-label">TOTAL</th>
+          <th id="procGrandTotal"></th>
+        </tr>
+      </tfoot>
+    </table>
+
+    <p>The employee-wise HRA difference amounts shown above are based on the calculation statement accompanying the bill and are subject to verification by the Drawing and Disbursing Officer and the Treasury authorities.</p>
+
+    <p>Any excess payment noticed subsequently shall be recoverable from the concerned employee(s) in accordance with the rules.</p>
+
+    <div class="proc-signature">
+      <div id="procPrincipalDesignation">PRINCIPAL</div>
+      <div id="procSignatureOffice">GOVT. DEGREE COLLEGE, CHEEPURUPALLI</div>
+    </div>
+
+    <div class="proc-to"><b>To</b></div>
+    <ol class="proc-to-list">
+      <li>The Treasury Officer, Sub-Treasury Office, <span id="procStoName"></span> – for necessary action.</li>
+      <li>All concerned employees.</li>
+      <li>Office file.</li>
+    </ol>
   </div>
 </div>
 
@@ -936,7 +1203,7 @@ function updateGrandSummary(){
   q('sumHra').textContent=money(t.hra);q('sumGross').textContent=money(t.gross);q('sumDed').textContent=money(t.ded);q('sumNet').textContent=money(t.net);
 }
 function serialize(){
-  const office={};['officeName','stoCode','stoName','ddoCode','ddoDesignation','billNo','billDate','officeTbHra','officeAdHra','billReason'].forEach(id=>office[id]=q(id).value);
+  const office={};['officeName','stoCode','stoName','ddoCode','ddoDesignation','billNo','billDate','officeTbHra','officeAdHra','principalName','principalQualification','proceedingsNo','billReason'].forEach(id=>office[id]=q(id).value);
   const employees=empCards().map(card=>({
     generated:card.querySelector('.table-wrap.monthwise-section')?.style.display !== 'none',
     employeeSaved:card.classList.contains('employee-saved'),
@@ -1006,6 +1273,78 @@ function newBill(){
   updateGrandSummary();
 }
 
+
+function buildBillAbstract(validCards){
+  const body=q('abstractRows');
+  const foot=q('abstractTotal');
+  body.innerHTML='';
+  foot.innerHTML='';
+
+  const grand={
+    basic:0,
+    tbHra:0,
+    adHra:0,
+    dHra:0,
+    gross:0,
+    it:0,
+    gpf:0,
+    net:0
+  };
+
+  validCards.forEach((card,i)=>{
+    let basicTotal=0;
+
+    [...card.querySelectorAll('.schedule-table tbody tr')].forEach(tr=>{
+      basicTotal += n(tr.dataset.proportionBasic);
+    });
+
+    const t=employeeTotals(card);
+    const gpf=n(ev(card,'gpf'));
+    const net=t.net-gpf;
+
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="center">${i+1}</td>
+      <td>${ev(card,'empId')}</td>
+      <td>${ev(card,'empName')}</td>
+      <td>${ev(card,'designation')}</td>
+      <td class="num">${cell(basicTotal)}</td>
+      <td class="num">${cell(t.tbHra)}</td>
+      <td class="num">${cell(t.adHra)}</td>
+      <td class="num">${cell(t.dHra)}</td>
+      <td class="num">${cell(t.dGross)}</td>
+      <td class="num">${cell(t.it)}</td>
+      <td class="num">${cell(gpf)}</td>
+      <td class="num">${cell(net)}</td>`;
+    body.appendChild(tr);
+
+    grand.basic+=basicTotal;
+    grand.tbHra+=t.tbHra;
+    grand.adHra+=t.adHra;
+    grand.dHra+=t.dHra;
+    grand.gross+=t.dGross;
+    grand.it+=t.it;
+    grand.gpf+=gpf;
+    grand.net+=net;
+  });
+
+  foot.innerHTML=`
+    <tr>
+      <th colspan="4" class="num">GRAND TOTAL</th>
+      <th class="num">${cell(grand.basic)}</th>
+      <th class="num">${cell(grand.tbHra)}</th>
+      <th class="num">${cell(grand.adHra)}</th>
+      <th class="num">${cell(grand.dHra)}</th>
+      <th class="num">${cell(grand.gross)}</th>
+      <th class="num">${cell(grand.it)}</th>
+      <th class="num">${cell(grand.gpf)}</th>
+      <th class="num">${cell(grand.net)}</th>
+    </tr>`;
+
+  q('abstractNetWords').textContent =
+    numberToIndianWords(Math.round(grand.net)) + ' only';
+}
+
 function buildPrintBill(){
   generateAllSchedules();
 
@@ -1021,7 +1360,7 @@ function buildPrintBill(){
   q('pBillNo').textContent=q('billNo').value||'________';
   q('pBillDate').textContent=iso(q('billDate').value)||'________';
   q('pReason').textContent=q('billReason').value;
-  q('pSign').textContent=(q('ddoDesignation').value||'DDO')+' / DDO';
+  if(q('pSign')) q('pSign').textContent=(q('ddoDesignation').value||'DDO')+' / DDO';
 
   const box=q('printEmployees');
   box.innerHTML='';
@@ -1110,11 +1449,29 @@ function buildPrintBill(){
         <th></th>
       </tr>`;
     wrap.querySelector('table').appendChild(foot);
+
+    const gpf=n(ev(card,'gpf'));
+    const employeeNet=t.net-gpf;
+
+    const employeeFooter=document.createElement('div');
+    employeeFooter.className='employee-print-footer';
+    employeeFooter.innerHTML=`
+      <div class="employee-print-words">
+        <b>Net amount in words:</b> ${numberToIndianWords(Math.round(employeeNet))} only
+      </div>
+      <div class="employee-print-sign">PRINCIPAL / DDO</div>`;
+
+    wrap.appendChild(employeeFooter);
     box.appendChild(wrap);
   });
 
+  buildBillAbstract(valid);
+  if(q('abstractSign')){
+    q('abstractSign').textContent='PRINCIPAL / DDO';
+  }
+
   const gt=grandTotals();
-  q('pWords').textContent=numberToIndianWords(Math.round(gt.net))+' only';
+  if(q('pWords')) q('pWords').textContent=numberToIndianWords(Math.round(gt.net))+' only';
   return true;
 }
 
@@ -1133,6 +1490,105 @@ function printBill(){
   if(!buildPrintBill()) return;
   q('printArea').classList.remove('screen-preview');
   setTimeout(()=>window.print(),50);
+}
+
+
+function buildProceedings(){
+  generateAllSchedules();
+
+  const valid=empCards().filter(c=>ev(c,'empName').trim());
+  if(!valid.length){
+    alert('Enter at least one employee before printing proceedings.');
+    return false;
+  }
+
+  const office=q('officeName').value || 'Government Degree College, Cheepurupalli';
+  const principalName=q('principalName').value.trim() || 'Dr. Ch. Lalitha';
+  const principalQualification=q('principalQualification').value.trim() || 'M.Sc., M.Phil., Ph.D.';
+  const proceedingsNo=q('proceedingsNo').value.trim() || '01/UGC2016/HRA/2026';
+
+  q('procTitle').textContent=`PROCEEDINGS OF THE PRINCIPAL, ${office}`;
+  q('procPrincipalName').textContent=principalQualification ? `${principalName}, ${principalQualification}` : principalName;
+  q('procProceedingsNo').textContent=proceedingsNo;
+  q('procPrincipalDesignation').textContent='PRINCIPAL';
+  q('procSignatureOffice').textContent=office.toUpperCase();
+
+  const tbRate=n(q('officeTbHra').value);
+  const adRate=n(q('officeAdHra').value);
+  const diffRate=tbRate-adRate;
+
+  let starts=valid.map(c=>ev(c,'billFrom')).filter(Boolean).sort();
+  let ends=valid.map(c=>ev(c,'billTo')).filter(Boolean).sort();
+  const from=starts[0] || '2024-07-01';
+  const to=ends[ends.length-1] || '2026-09-30';
+
+  document.querySelectorAll('.proc-office-name').forEach(el=>el.textContent=office);
+
+  q('procSubject').textContent =
+    `Collegiate Education – ${office} – Teaching staff drawing UGC Revised Pay Scales – ` +
+    `House Rent Allowance (HRA) at ${tbRate}% of Basic Pay – Sanction/admission of HRA difference arrears ` +
+    `for the period from ${iso(from)} to ${iso(to)} – Orders – Issued.`;
+
+  q('procRefBill').textContent =
+    `HRA Difference Arrear Bill of ${office} for the period ${iso(from)} to ${iso(to)}.`;
+
+  q('procVerification').textContent =
+    `On verification of the HRA particulars incorporated in the HRA Difference Arrear Bill, it is observed that ` +
+    `HRA has been calculated at ${tbRate}% of Basic Pay as admissible and that HRA at ${adRate}% of Basic Pay had already been drawn. ` +
+    `Accordingly, the difference of ${diffRate}% of Basic Pay is worked out as HRA arrears for the eligible period. ` +
+    `Where an employee has a change in HRA entitlement during the bill period, the applicable rates are regulated from the effective date as shown in the detailed calculation statement.`;
+
+  q('procSanction').textContent =
+    `Therefore, sanction/admission is hereby accorded for payment of HRA difference arrears to the following staff members ` +
+    `for the period from ${iso(from)} to ${iso(to)}, subject to their eligibility and the applicable rules/orders. ` +
+    `The HRA difference arrears shall be restricted to the difference between the admissible HRA and the HRA already drawn as detailed in the accompanying bill.`;
+
+  q('procStoName').textContent=q('stoName').value || 'Cheepurupalli';
+
+  const rows=q('procEmployeeRows');
+  rows.innerHTML='';
+  let total=0;
+
+  valid.forEach((card,i)=>{
+    const t=employeeTotals(card);
+    const amount=t.dGross;
+    total+=amount;
+
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="center">${i+1}</td>
+      <td>${ev(card,'empName')}</td>
+      <td>${ev(card,'designation')}</td>
+      <td class="center">${ev(card,'empId')}</td>
+      <td class="num">${cell(amount)}</td>`;
+    rows.appendChild(tr);
+  });
+
+  q('procGrandTotal').textContent=cell(total);
+  return true;
+}
+
+function cleanupProceedingsPrint(){
+  document.body.classList.remove('printing-proceedings');
+  const s=document.getElementById('proceedingsPageStyle');
+  if(s) s.remove();
+}
+
+function printProceedings(){
+  if(!buildProceedings()) return;
+
+  cleanupProceedingsPrint();
+  document.body.classList.add('printing-proceedings');
+
+  const style=document.createElement('style');
+  style.id='proceedingsPageStyle';
+  style.textContent='@page{size:A4 portrait;margin:12mm;}';
+  document.head.appendChild(style);
+
+  const done=()=>cleanupProceedingsPrint();
+  window.addEventListener('afterprint',done,{once:true});
+
+  setTimeout(()=>window.print(),60);
 }
 
 function numberToIndianWords(num){
