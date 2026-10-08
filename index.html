@@ -12,7 +12,20 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
 .app{max-width:1500px;margin:auto;padding:18px}
-.topbar{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:14px}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:14px;
+  position:sticky;
+  top:0;
+  z-index:1000;
+  background:var(--bg);
+  padding:12px 0 10px;
+  border-bottom:1px solid var(--line);
+  box-shadow:0 2px 8px rgba(20,32,60,.08);
+}
 h1{margin:0;font-size:25px;color:var(--primary2)}
 .subtitle{color:var(--muted);font-size:13px;margin-top:6px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
@@ -29,7 +42,13 @@ button{border:0;border-radius:7px;padding:9px 13px;font-weight:700;cursor:pointe
 .field textarea{min-height:66px}
 .span2{grid-column:span 2}.span4{grid-column:span 4}
 .hint{font-size:12px;color:var(--muted);margin-top:7px}
-.emp-card{border:1px solid var(--line);border-radius:9px;margin-bottom:14px;overflow:hidden}
+.emp-card{
+  border:1px solid var(--line);
+  border-radius:9px;
+  margin-bottom:14px;
+  overflow:hidden;
+  scroll-margin-top:115px;
+}
 .emp-head{display:flex;justify-content:space-between;align-items:center;background:#f6f9fd;padding:10px 12px;border-bottom:1px solid var(--line)}
 .emp-head strong{color:var(--primary2)}
 .badge{display:inline-block;background:var(--soft);padding:5px 9px;border-radius:14px;color:var(--primary2);font-size:12px;font-weight:700}
@@ -69,7 +88,27 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
 .print-emp h4{margin:5px 0;font-size:12px}
 .bill-table th,.bill-table td{border:1px solid #000;padding:3px;font-size:9px}
 .bill-table th{background:#fff;color:#000}
-.sign{display:flex;justify-content:flex-end;margin-top:35px;font-weight:700}
+.print-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:16px;
+  margin-top:1cm;
+  page-break-inside:avoid;
+  break-inside:avoid;
+}
+.print-words{
+  font-size:11px;
+  line-height:1.15;
+  flex:1;
+}
+.sign{
+  margin:0;
+  font-weight:700;
+  white-space:nowrap;
+  text-align:right;
+  min-width:120px;
+}
 @media(max-width:950px){.grid{grid-template-columns:repeat(2,1fr)}.span4{grid-column:span 2}.summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.app{padding:8px}.topbar{flex-direction:column}.grid{grid-template-columns:1fr}.span2,.span4{grid-column:span 1}.summary{grid-template-columns:1fr}}
 @media print{
@@ -80,6 +119,135 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
   @page{size:A4 landscape;margin:7mm}
   .print-emp{break-inside:avoid}
 }
+
+@media print{
+  .print-footer{
+    display:flex !important;
+    justify-content:space-between !important;
+    align-items:flex-end !important;
+    margin-top:1cm !important;
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+    page-break-before:avoid !important;
+    break-before:avoid !important;
+  }
+  .print-words{
+    font-size:10px !important;
+  }
+  .sign{
+    margin:0 !important;
+    font-size:11px !important;
+    white-space:nowrap !important;
+  }
+}
+
+
+@media print{
+  .bill-table th:nth-child(15),
+  .bill-table td:nth-child(15){
+    width:1cm !important;
+    min-width:1cm !important;
+    max-width:1cm !important;
+    padding-left:1px !important;
+    padding-right:1px !important;
+    white-space:normal !important;
+    word-break:break-word !important;
+    text-align:center !important;
+  }
+}
+
+
+@media print{
+  .topbar{
+    position:static !important;
+    box-shadow:none !important;
+    border-bottom:none !important;
+    padding:0 !important;
+  }
+}
+
+
+
+
+
+.employee-actions-before-table{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:12px;
+  margin-bottom:8px;
+}
+.employee-save-row{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:10px;
+}
+
+
+.employee-actions-before-table{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:14px;
+  margin-bottom:10px;
+}
+.save-generate-btn{
+  min-width:260px;
+}
+
+
+.saved-employee-row{
+  display:none;
+  padding:10px 12px;
+  border-top:1px solid var(--line);
+  background:#fbfcfe;
+}
+.emp-card.employee-saved .emp-body{display:none;}
+.emp-card.employee-saved .saved-employee-row{display:block;}
+.saved-row-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;
+  gap:10px;
+  align-items:center;
+}
+.saved-cell{
+  font-size:12px;
+  min-width:0;
+}
+.saved-cell span{
+  display:block;
+  font-size:10px;
+  font-weight:700;
+  color:var(--muted);
+  margin-bottom:2px;
+}
+.saved-cell strong{
+  color:var(--primary2);
+  overflow-wrap:anywhere;
+}
+.employee-final-save{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:10px;
+}
+@media(max-width:850px){
+  .saved-row-grid{grid-template-columns:1fr 1fr;}
+}
+
+
+@media print{
+  .bill-table th:nth-child(15),
+  .bill-table td:nth-child(15),
+  .bill-table th:nth-child(16),
+  .bill-table td:nth-child(16){
+    width:1.2cm !important;
+    min-width:1.2cm !important;
+    max-width:1.2cm !important;
+    padding-left:1px !important;
+    padding-right:1px !important;
+    white-space:normal !important;
+    text-align:center !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -92,7 +260,7 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
     <div class="actions">
       <button class="secondary" onclick="saveDraft()">Save Draft</button>
       <button class="secondary" onclick="loadDraft()">Load Draft</button>
-      <button class="primary" onclick="addEmployee()">+ Add Employee</button>
+      <button class="primary" onclick="addEmployee({}, true)">+ Add Employee</button>
       <button class="primary" onclick="generateAllSchedules()">Generate All</button>
       <button class="secondary" onclick="previewBill()">Preview Bill</button>
       <button class="primary" onclick="printBill()">Print Bill</button>
@@ -105,12 +273,12 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
     <h2>1. Office & Bill Details</h2>
     <div class="body">
       <div class="grid">
-        <div class="field span2"><label>Name of College / Office</label><input id="officeName" value="Government Degree College, SALUR"></div>
+        <div class="field span2"><label>Name of College / Office</label><input id="officeName" value="Government Degree College, Cheepurupalli"></div>
         <div class="field"><label>STO Code</label><input id="stoCode" value="2204"></div>
-        <div class="field"><label>STO Office Name</label><input id="stoName" value="Salur"></div>
-        <div class="field"><label>DDO Code</label><input id="ddoCode" value="22100304001"></div>
+        <div class="field"><label>STO Office Name</label><input id="stoName" value="Cheepurupalli"></div>
+        <div class="field"><label>DDO Code</label><input id="ddoCode" value="22040304002"></div>
         <div class="field"><label>DDO Designation</label><input id="ddoDesignation" value="PRINCIPAL"></div>
-        <div class="field"><label>Bill No.</label><input id="billNo"></div>
+        <div class="field"><label>Bill No.</label><input id="billNo" value="2026-"></div>
         <div class="field"><label>Bill Date</label><input id="billDate" type="date"></div>
         <div class="field"><label>Default HRA To Be Drawn</label><select id="officeTbHra"></select></div>
         <div class="field"><label>Default HRA Already Drawn</label><select id="officeAdHra"></select></div>
@@ -158,8 +326,10 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
     </div>
     <div id="pReason" style="font-size:11px;margin:6px 0"></div>
     <div id="printEmployees"></div>
-    <div style="margin-top:10px;font-size:11px"><b>Net amount in words:</b> <span id="pWords"></span></div>
-    <div class="sign" id="pSign">PRINCIPAL / DDO</div>
+    <div class="print-footer">
+      <div class="print-words"><b>Net amount in words:</b> <span id="pWords"></span></div>
+      <div class="sign" id="pSign">PRINCIPAL / DDO</div>
+    </div>
   </div>
 </div>
 
@@ -223,6 +393,11 @@ function daOptions(selected){
 function hraOptions(selected){
   return UGC_HRA_RATES.map(x=>`<option value="${x.rate}" ${String(x.rate)===String(selected)?'selected':''}>${x.rate}%</option>`).join('')
 }
+
+function itRateOptions(selected){
+  const rates=[0,5,10,15,20,25,30,31.4,34];
+  return rates.map(v=>`<option value="${v}" ${String(v)===String(selected)?'selected':''}>${v}%</option>`).join('');
+}
 function defaultDaForDate(dateStr){
   if(!dateStr)return 53;
   let found=UGC_DA_RATES[0];
@@ -253,6 +428,27 @@ function incrementsAfterStart(start, segmentDate, incrementMonth){
     y++;
   }
   return count;
+}
+
+function stageForSegment(card, segFrom){
+  const originalScale=ev(card,'scale');
+  const originalBasic=ev(card,'startingBasic');
+  const originalInc=ev(card,'incrementMonth');
+  const billFrom=ev(card,'billFrom');
+
+  const payChangeEnabled=ev(card,'payChangeFlag')==='yes';
+  const payChangeDate=payChangeEnabled ? ev(card,'payChangeDate') : '';
+
+  if(payChangeDate && segFrom>=payChangeDate){
+    const newScale=ev(card,'newScale')||originalScale;
+    const newBasic=ev(card,'newBasic')||scaleByKey(newScale).values[0];
+    const newInc=ev(card,'newIncrementMonth')||originalInc;
+    const steps=incrementsAfterStart(payChangeDate,segFrom,newInc);
+    return {scaleKey:newScale,stage:nextStage(newScale,newBasic,steps)};
+  }
+
+  const steps=incrementsAfterStart(billFrom,segFrom,originalInc);
+  return {scaleKey:originalScale,stage:nextStage(originalScale,originalBasic,steps)};
 }
 function monthSegments(fromStr,toStr,splitDates=[]){
   if(!fromStr||!toStr)return[];
@@ -306,7 +502,7 @@ function monthSegments(fromStr,toStr,splitDates=[]){
 
 function empCards(){return [...document.querySelectorAll('.emp-card')]}
 
-function addEmployee(data={}){
+function addEmployee(data={}, shouldScroll=false){
   if(empCards().length>=MAX_EMP){alert('Maximum 20 employees are allowed.');return}
   const index=empCards().length+1;
   const scaleKey=data.scaleKey||'ugc-al14';
@@ -317,7 +513,6 @@ function addEmployee(data={}){
     <div class="emp-head">
       <strong>Employee <span class="emp-no">${index}</span></strong>
       <div>
-        <button class="secondary" onclick="generateSchedule(this.closest('.emp-card'))">Generate Month-wise Schedule</button>
         <button class="danger" onclick="removeEmployee(this.closest('.emp-card'))">Remove</button>
       </div>
     </div>
@@ -345,25 +540,55 @@ function addEmployee(data={}){
             <option value="yes" ${(data.hraChangeFlag||'no')==='yes'?'selected':''}>Yes</option>
           </select>
         </div>
+        <div class="field hra-change-extra" style="display:none"><label>HRA To Be Drawn from Bill Start</label><select class="startTbHra">${hraOptions(data.startTbHra||20)}</select></div>
+        <div class="field hra-change-extra" style="display:none"><label>HRA Already Drawn from Bill Start</label><select class="startAdHra">${hraOptions(data.startAdHra||18)}</select></div>
         <div class="field hra-change-extra" style="display:none"><label>HRA Change Date</label><input class="hraChangeDate" type="date" value="${data.hraChangeDate||''}"></div>
         <div class="field hra-change-extra" style="display:none"><label>New HRA To Be Drawn</label><select class="newTbHra">${hraOptions(data.newTbHra||10)}</select></div>
-        <div class="field hra-change-extra" style="display:none"><label>New HRA Already Drawn</label><select class="newAdHra">${hraOptions(data.newAdHra||10)}</select></div>
+        <div class="field hra-change-extra" style="display:none"><label>New HRA Already Drawn</label><select class="newAdHra">${hraOptions(data.newAdHra||9)}</select></div>
+
+        <div class="field"><label>Pay Change / CAS during bill period?</label>
+          <select class="payChangeFlag">
+            <option value="no" ${(data.payChangeFlag||'no')==='no'?'selected':''}>No</option>
+            <option value="yes" ${(data.payChangeFlag||'no')==='yes'?'selected':''}>Yes</option>
+          </select>
+        </div>
+        <div class="field pay-change-extra" style="display:none"><label>Effective Date</label><input class="payChangeDate" type="date" value="${data.payChangeDate||''}"></div>
+        <div class="field pay-change-extra" style="display:none"><label>Reason</label>
+          <select class="payChangeReason">
+            <option value="CAS" ${(data.payChangeReason||'CAS')==='CAS'?'selected':''}>CAS</option>
+            <option value="Promotion" ${data.payChangeReason==='Promotion'?'selected':''}>Promotion</option>
+            <option value="Pay Fixation" ${data.payChangeReason==='Pay Fixation'?'selected':''}>Pay Fixation</option>
+            <option value="Other" ${data.payChangeReason==='Other'?'selected':''}>Other</option>
+          </select>
+        </div>
+        <div class="field pay-change-extra" style="display:none"><label>New UGC Pay Scale</label><select class="newScale">${scaleOptions(data.newScale||data.scaleKey||'ugc-al14')}</select></div>
+        <div class="field pay-change-extra" style="display:none"><label>New Basic Pay</label><select class="newBasic"></select></div>
+        <div class="field pay-change-extra" style="display:none"><label>Increment Month after change</label>
+          <select class="newIncrementMonth">
+            <option value="jan" ${(data.newIncrementMonth||data.incrementMonth||'jan')==='jan'?'selected':''}>1 January</option>
+            <option value="jul" ${(data.newIncrementMonth||data.incrementMonth||'jan')==='jul'?'selected':''}>1 July</option>
+          </select>
+        </div>
 
         <div class="field"><label>GPF / Deduction</label><input class="gpf" type="number" value="${data.gpf||0}"></div>
-        <div class="field"><label>IT / Other Deduction</label><input class="it" type="number" value="${data.it||0}"></div>
+        <div class="field"><label>IT / Other Deduction %</label><select class="itRate">${itRateOptions(data.itRate||0)}</select></div>
       </div>
 
-      <div class="table-wrap">
+      <div class="employee-actions-before-table">
+        <button class="primary save-generate-btn" onclick="saveAndGenerateEmployee(this.closest('.emp-card'))">Save &amp; Generate Month-wise Bill</button>
+      </div>
+
+      <div class="table-wrap monthwise-section" style="display:none">
         <table class="schedule-table">
           <thead>
             <tr>
               <th rowspan="2">Sl.</th><th rowspan="2">Period</th><th rowspan="2">Days</th><th rowspan="2">Basic Pay</th>
-              <th colspan="3">TO BE DRAWN</th><th colspan="3">ALREADY DRAWN</th><th colspan="4">DIFFERENCE</th><th rowspan="2">DA Rate</th>
+              <th colspan="3">TO BE DRAWN</th><th colspan="3">ALREADY DRAWN</th><th colspan="6">DIFFERENCE</th><th rowspan="2">DA Rate</th>
             </tr>
             <tr>
               <th>DA</th><th>HRA Rate</th><th>HRA</th>
               <th>DA</th><th>HRA Rate</th><th>HRA</th>
-              <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th>
+              <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th><th>IT Deduction</th><th>Net Amount</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -372,12 +597,28 @@ function addEmployee(data={}){
               <th colspan="4" class="num">Employee Total</th>
               <th class="t-tb-da"></th><th></th><th class="t-tb-hra"></th>
               <th class="t-ad-da"></th><th></th><th class="t-ad-hra"></th>
-              <th class="t-d-basic"></th><th class="t-d-da"></th><th class="t-d-hra"></th><th class="t-d-gross"></th><th></th>
+              <th class="t-d-basic"></th><th class="t-d-da"></th><th class="t-d-hra"></th><th class="t-d-gross"></th><th class="t-it"></th><th class="t-net"></th><th></th>
             </tr>
           </tfoot>
         </table>
       </div>
+
+      <div class="employee-final-save monthwise-section" style="display:none">
+        <button class="primary" type="button" onclick="finalSaveEmployee(this.closest('.emp-card'))">Save Employee</button>
+      </div>
+
       <div class="hint">HRA rates are common for the entire bill and are selected in Office & Bill Details. DA is common to both sides and is shown once in the last column of each month row.</div>
+    </div>
+
+    <div class="saved-employee-row">
+      <div class="saved-row-grid">
+        <div class="saved-cell"><span>Employee</span><strong class="saved-name">—</strong></div>
+        <div class="saved-cell"><span>Gross Arrear</span><strong class="saved-gross">₹0</strong></div>
+        <div class="saved-cell"><span>IT Deduction</span><strong class="saved-it">₹0</strong></div>
+        <div class="saved-cell"><span>GPF / Other</span><strong class="saved-gpf">₹0</strong></div>
+        <div class="saved-cell"><span>Net Payable</span><strong class="saved-net">₹0</strong></div>
+        <div><button class="secondary" type="button" onclick="editSavedEmployee(this.closest('.emp-card'))">Edit</button></div>
+      </div>
     </div>`;
   q('employees').appendChild(div);
 
@@ -387,7 +628,7 @@ function addEmployee(data={}){
     basic.innerHTML=basicOptions(scale.value,scaleByKey(scale.value).values[0]);
     generateSchedule(div);
   });
-  ['startingBasic','incrementMonth','billFrom','billTo','hraChangeDate','newTbHra','newAdHra'].forEach(cls=>{
+  ['startingBasic','incrementMonth','billFrom','billTo','startTbHra','startAdHra','hraChangeDate','newTbHra','newAdHra'].forEach(cls=>{
     div.querySelector('.'+cls).addEventListener('change',()=>generateSchedule(div));
   });
 
@@ -400,13 +641,135 @@ function addEmployee(data={}){
   changeFlag.addEventListener('change', toggleHraChangeFields);
   toggleHraChangeFields();
 
-  ['gpf','it'].forEach(cls=>div.querySelector('.'+cls).addEventListener('input',updateGrandSummary));
+  const payFlag = div.querySelector('.payChangeFlag');
+  const newScale = div.querySelector('.newScale');
+  const newBasic = div.querySelector('.newBasic');
+
+  function refreshNewBasic(selected){
+    newBasic.innerHTML = basicOptions(newScale.value, selected || data.newBasic || scaleByKey(newScale.value).values[0]);
+  }
+  refreshNewBasic();
+
+  function togglePayChangeFields(){
+    const show = payFlag.value === 'yes';
+    div.querySelectorAll('.pay-change-extra').forEach(el=>el.style.display = show ? '' : 'none');
+    generateSchedule(div);
+  }
+
+  payFlag.addEventListener('change', togglePayChangeFields);
+  newScale.addEventListener('change', ()=>{
+    refreshNewBasic(scaleByKey(newScale.value).values[0]);
+    generateSchedule(div);
+  });
+  ['payChangeDate','payChangeReason','newBasic','newIncrementMonth'].forEach(cls=>{
+    div.querySelector('.'+cls).addEventListener('change',()=>generateSchedule(div));
+  });
+  togglePayChangeFields();
+
+  div.querySelector('.gpf').addEventListener('input',updateGrandSummary);
+  div.querySelector('.itRate').addEventListener('change',()=>{generateSchedule(div);updateGrandSummary();});
 
   renumberEmployees();
   generateSchedule(div);
+  div.querySelectorAll('.monthwise-section').forEach(section=>{
+    section.style.display='none';
+  });
+
+  if(shouldScroll){
+    setTimeout(()=>{
+      div.scrollIntoView({behavior:'smooth', block:'start'});
+      const firstInput = div.querySelector('.empId');
+      if(firstInput) setTimeout(()=>firstInput.focus(), 450);
+    }, 50);
+  }
 }
+
+
+function saveAndGenerateEmployee(card){
+  const name=ev(card,'empName').trim();
+  if(!name){
+    alert('Enter Employee Name before generating the bill.');
+    card.querySelector('.empName')?.focus();
+    return;
+  }
+
+  const from=ev(card,'billFrom');
+  const to=ev(card,'billTo');
+  if(!from || !to){
+    alert('Enter Bill From Date and Bill To Date.');
+    return;
+  }
+  if(parseDate(to) < parseDate(from)){
+    alert('Bill To Date cannot be earlier than Bill From Date.');
+    return;
+  }
+
+  generateSchedule(card);
+
+  card.querySelectorAll('.monthwise-section').forEach(section=>{
+    section.style.display='block';
+  });
+
+  // Save the current employee and entire bill draft.
+  localStorage.setItem('hraArrearV3', JSON.stringify(serialize()));
+
+  const btn=card.querySelector('.save-generate-btn');
+  if(btn) btn.textContent='Saved ✓  Regenerate Month-wise Bill';
+
+  q('status').textContent='Employee saved and month-wise bill generated';
+  setTimeout(()=>q('status').textContent='',2200);
+
+  updateGrandSummary();
+
+  // Bring the generated table into view without jumping too far.
+  setTimeout(()=>{
+    card.querySelector('.table-wrap')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },80);
+}
+
+
+function finalSaveEmployee(card){
+  const name=ev(card,'empName').trim();
+  if(!name){
+    alert('Enter Employee Name before saving.');
+    return;
+  }
+
+  generateSchedule(card);
+
+  const t=employeeTotals(card);
+  const gpf=n(ev(card,'gpf'));
+  const net=t.net-gpf;
+
+  card.querySelector('.saved-name').textContent =
+    [name,ev(card,'empId'),ev(card,'designation')].filter(Boolean).join(' | ');
+  card.querySelector('.saved-gross').textContent=money(t.dGross);
+  card.querySelector('.saved-it').textContent=money(t.it);
+  card.querySelector('.saved-gpf').textContent=money(gpf);
+  card.querySelector('.saved-net').textContent=money(net);
+
+  card.classList.add('employee-saved');
+
+  localStorage.setItem('hraArrearV3', JSON.stringify(serialize()));
+  q('status').textContent='Employee saved';
+  setTimeout(()=>q('status').textContent='',1600);
+
+  updateGrandSummary();
+}
+
+function editSavedEmployee(card){
+  card.classList.remove('employee-saved');
+  card.querySelectorAll('.monthwise-section').forEach(section=>{
+    section.style.display='block';
+  });
+  setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+
 function removeEmployee(card){
-  card.remove();renumberEmployees();updateGrandSummary()
+  card.remove();
+  renumberEmployees();
+  updateGrandSummary();
+  localStorage.setItem('hraArrearV3', JSON.stringify(serialize()));
 }
 function renumberEmployees(){
   empCards().forEach((c,i)=>c.querySelector('.emp-no').textContent=i+1);
@@ -420,22 +783,28 @@ function generateSchedule(card){
   const from=ev(card,'billFrom'),to=ev(card,'billTo');
   const changeEnabled=ev(card,'hraChangeFlag')==='yes';
   const changeDate=changeEnabled ? ev(card,'hraChangeDate') : '';
-  const segments=monthSegments(from,to,[changeDate]);
+  const payChangeEnabled=ev(card,'payChangeFlag')==='yes';
+  const payChangeDate=payChangeEnabled ? ev(card,'payChangeDate') : '';
+  const segments=monthSegments(from,to,[changeDate,payChangeDate]);
   if(!segments.length){updateEmployeeTotals(card);return}
 
   segments.forEach((seg,i)=>{
-    const incCount=incrementsAfterStart(from,seg.from,ev(card,'incrementMonth'));
-    const monthlyBasic=nextStage(ev(card,'scale'),ev(card,'startingBasic'),incCount);
+    const payState=stageForSegment(card,seg.from);
+    const monthlyBasic=payState.stage;
     const proportionBasic=Math.round(monthlyBasic*seg.days/seg.dim);
     const autoDa=defaultDaForDate(seg.from);
     const officeTbHra=q('officeTbHra').value||20;
-    const officeAdHra=q('officeAdHra').value||10;
+    const officeAdHra=q('officeAdHra').value||18;
     const changeEnabled=ev(card,'hraChangeFlag')==='yes';
     const changeDate=changeEnabled ? ev(card,'hraChangeDate') : '';
-    const changedTbHra=ev(card,'newTbHra')||officeTbHra;
-    const changedAdHra=ev(card,'newAdHra')||officeAdHra;
-    const tbHra=(changeDate && seg.from>=changeDate) ? changedTbHra : officeTbHra;
-    const adHra=(changeDate && seg.from>=changeDate) ? changedAdHra : officeAdHra;
+
+    const startTbHra=changeEnabled ? (ev(card,'startTbHra')||officeTbHra) : officeTbHra;
+    const startAdHra=changeEnabled ? (ev(card,'startAdHra')||officeAdHra) : officeAdHra;
+    const changedTbHra=ev(card,'newTbHra')||startTbHra;
+    const changedAdHra=ev(card,'newAdHra')||startAdHra;
+
+    const tbHra=(changeDate && seg.from>=changeDate) ? changedTbHra : startTbHra;
+    const adHra=(changeDate && seg.from>=changeDate) ? changedAdHra : startAdHra;
 
     const tr=document.createElement('tr');
     tr.dataset.fullBasic=monthlyBasic;
@@ -444,7 +813,7 @@ function generateSchedule(card){
       <td class="center">${i+1}</td>
       <td style="white-space:nowrap">${iso(seg.from)} to ${iso(seg.to)}</td>
       <td class="center">${seg.days}/${seg.dim}</td>
-      <td class="computed num">${cell(proportionBasic)}<div style="font-size:9px;font-weight:400;color:#667">Stage: ${cell(monthlyBasic)}</div></td>
+      <td class="computed num">${cell(proportionBasic)}<div style="font-size:9px;font-weight:400;color:#667">Stage: ${cell(monthlyBasic)} | ${scaleByKey(payState.scaleKey).key.replace('ugc-','').toUpperCase()}</div></td>
 
       <td class="computed num tbDa">0</td>
       <td class="computed center tbHraRate">${tbHra}%</td>
@@ -458,6 +827,8 @@ function generateSchedule(card){
       <td class="computed num dDa">0</td>
       <td class="computed num dHra">0</td>
       <td class="computed num dGross">0</td>
+      <td class="computed num itDeduction">0</td>
+      <td class="computed num netAmount">0</td>
       <td class="computed center daRate">${autoDa}%</td>`;
     body.appendChild(tr);
     calculateMonthRow(card,tr);
@@ -469,11 +840,20 @@ function calculateMonthRow(card,tr){
   const daRate=n((tr.querySelector('.daRate')?.textContent||'0').replace('%',''));
   const tbHraRate=n((tr.querySelector('.tbHraRate')?.textContent||'0').replace('%',''));
   const adHraRate=n((tr.querySelector('.adHraRate')?.textContent||'0').replace('%',''));
+
   const tbDa=Math.round(basic*daRate/100);
   const tbHra=Math.round(basic*tbHraRate/100);
   const adDa=tbDa;
   const adHra=Math.round(basic*adHraRate/100);
-  const dBasic=0,dDa=0,dHra=tbHra-adHra,dGross=dHra;
+
+  const dBasic=0;
+  const dDa=0;
+  const dHra=tbHra-adHra;
+  const dGross=dHra;
+
+  const itRate=n(ev(card,'itRate'));
+  const itDeduction=Math.round(dGross*itRate/100);
+
   tr.querySelector('.tbDa').textContent=cell(tbDa);
   tr.querySelector('.tbHra').textContent=cell(tbHra);
   tr.querySelector('.adDa').textContent=cell(adDa);
@@ -481,38 +861,75 @@ function calculateMonthRow(card,tr){
   tr.querySelector('.dBasic').textContent=cell(dBasic);
   tr.querySelector('.dDa').textContent=cell(dDa);
   tr.querySelector('.dHra').textContent=cell(dHra);
+  const netAmount=dGross-itDeduction;
   tr.querySelector('.dGross').textContent=cell(dGross);
+  tr.querySelector('.itDeduction').textContent=cell(itDeduction);
+  tr.querySelector('.netAmount').textContent=cell(netAmount);
   updateEmployeeTotals(card);
 }
 function employeeTotals(card){
-  const t={tbDa:0,tbHra:0,adDa:0,adHra:0,dBasic:0,dDa:0,dHra:0,dGross:0};
+  const t={tbDa:0,tbHra:0,adDa:0,adHra:0,dBasic:0,dDa:0,dHra:0,dGross:0,it:0,net:0};
+  const itRate=n(ev(card,'itRate'));
+
   [...card.querySelectorAll('.schedule-table tbody tr')].forEach(tr=>{
     const basic=n(tr.dataset.proportionBasic);
     const daRate=n((tr.querySelector('.daRate')?.textContent||'0').replace('%',''));
     const tbHraRate=n((tr.querySelector('.tbHraRate')?.textContent||'0').replace('%',''));
     const adHraRate=n((tr.querySelector('.adHraRate')?.textContent||'0').replace('%',''));
+
     const tbDa=Math.round(basic*daRate/100);
     const tbHra=Math.round(basic*tbHraRate/100);
     const adDa=tbDa;
     const adHra=Math.round(basic*adHraRate/100);
-    t.tbDa+=tbDa;t.tbHra+=tbHra;t.adDa+=adDa;t.adHra+=adHra;
-    t.dDa+=0;t.dHra+=tbHra-adHra;t.dGross+=tbHra-adHra;
+    const gross=(tbHra-adHra);
+    const tax=Math.round(gross*itRate/100);
+
+    t.tbDa+=tbDa;
+    t.tbHra+=tbHra;
+    t.adDa+=adDa;
+    t.adHra+=adHra;
+    t.dDa+=0;
+    t.dHra+=gross;
+    t.dGross+=gross;
+    t.it+=tax;
+    t.net+=(gross-tax);
   });
+
   return t;
 }
 function updateEmployeeTotals(card){
   const t=employeeTotals(card);
-  const map={'t-tb-da':t.tbDa,'t-tb-hra':t.tbHra,'t-ad-da':t.adDa,'t-ad-hra':t.adHra,'t-d-basic':0,'t-d-da':t.dDa,'t-d-hra':t.dHra,'t-d-gross':t.dGross};
+  const map={'t-tb-da':t.tbDa,'t-tb-hra':t.tbHra,'t-ad-da':t.adDa,'t-ad-hra':t.adHra,'t-d-basic':0,'t-d-da':t.dDa,'t-d-hra':t.dHra,'t-d-gross':t.dGross,'t-it':t.it,'t-net':t.net};
   Object.entries(map).forEach(([cls,val])=>{const el=card.querySelector('.'+cls);if(el)el.textContent=cell(val)});
   updateGrandSummary();
 }
-function generateAllSchedules(){empCards().forEach(generateSchedule);updateGrandSummary()}
-function grandTotals(){
-  let hra=0,gross=0,ded=0;
+function generateAllSchedules(){
   empCards().forEach(card=>{
-    const t=employeeTotals(card);hra+=t.dHra;gross+=t.dGross;ded+=n(ev(card,'gpf'))+n(ev(card,'it'));
+    generateSchedule(card);
+    if(card.classList.contains('saved')){
+      const t=employeeTotals(card);
+      const gpf=n(ev(card,'gpf'));
+      card.querySelector('.s-name').textContent =
+        [ev(card,'empName'),ev(card,'empId'),ev(card,'designation')].filter(Boolean).join(' | ');
+      card.querySelector('.s-gross').textContent=money(t.dGross);
+      card.querySelector('.s-it').textContent=money(t.it);
+      card.querySelector('.s-gpf').textContent=money(gpf);
+      card.querySelector('.s-net').textContent=money(t.net-gpf);
+    }
   });
-  return {hra,gross,ded,net:gross-ded};
+  updateGrandSummary();
+}
+function grandTotals(){
+  let hra=0,gross=0,ded=0,net=0;
+  empCards().forEach(card=>{
+    const t=employeeTotals(card);
+    const gpf=n(ev(card,'gpf'));
+    hra+=t.dHra;
+    gross+=t.dGross;
+    ded+=t.it+gpf;
+    net+=t.net-gpf;
+  });
+  return {hra,gross,ded,net};
 }
 function updateGrandSummary(){
   const t=grandTotals();
@@ -521,12 +938,19 @@ function updateGrandSummary(){
 function serialize(){
   const office={};['officeName','stoCode','stoName','ddoCode','ddoDesignation','billNo','billDate','officeTbHra','officeAdHra','billReason'].forEach(id=>office[id]=q(id).value);
   const employees=empCards().map(card=>({
+    generated:card.querySelector('.table-wrap.monthwise-section')?.style.display !== 'none',
+    employeeSaved:card.classList.contains('employee-saved'),
     empId:ev(card,'empId'),empName:ev(card,'empName'),designation:ev(card,'designation'),
     scaleKey:ev(card,'scale'),startingBasic:ev(card,'startingBasic'),incrementMonth:ev(card,'incrementMonth'),
     billFrom:ev(card,'billFrom'),billTo:ev(card,'billTo'),
-    hraChangeFlag:ev(card,'hraChangeFlag'),hraChangeDate:ev(card,'hraChangeDate'),
+    hraChangeFlag:ev(card,'hraChangeFlag'),
+    startTbHra:ev(card,'startTbHra'),startAdHra:ev(card,'startAdHra'),
+    hraChangeDate:ev(card,'hraChangeDate'),
     newTbHra:ev(card,'newTbHra'),newAdHra:ev(card,'newAdHra'),
-    gpf:ev(card,'gpf'),it:ev(card,'it')
+    payChangeFlag:ev(card,'payChangeFlag'),payChangeDate:ev(card,'payChangeDate'),
+    payChangeReason:ev(card,'payChangeReason'),newScale:ev(card,'newScale'),
+    newBasic:ev(card,'newBasic'),newIncrementMonth:ev(card,'newIncrementMonth'),
+    gpf:ev(card,'gpf'),itRate:ev(card,'itRate')
   }));
   return {office,employees};
 }
@@ -543,10 +967,31 @@ function loadDraft(){
   });
 
   q('employees').innerHTML='';
-  (d.employees||[]).forEach(emp=>addEmployee(emp));
+  (d.employees||[]).forEach(emp=>{
+    addEmployee(emp);
+    const card=empCards().at(-1);
+    generateSchedule(card);
+    card.querySelectorAll('.monthwise-section').forEach(section=>{
+      section.style.display = emp.generated ? 'block' : 'none';
+    });
+    const btn=card.querySelector('.save-generate-btn');
+    if(btn && emp.generated) btn.textContent='Saved ✓  Regenerate Month-wise Bill';
+
+    if(emp.employeeSaved){
+      const t=employeeTotals(card);
+      const gpf=n(ev(card,'gpf'));
+      card.querySelector('.saved-name').textContent =
+        [ev(card,'empName'),ev(card,'empId'),ev(card,'designation')].filter(Boolean).join(' | ');
+      card.querySelector('.saved-gross').textContent=money(t.dGross);
+      card.querySelector('.saved-it').textContent=money(t.it);
+      card.querySelector('.saved-gpf').textContent=money(gpf);
+      card.querySelector('.saved-net').textContent=money(t.net-gpf);
+      card.classList.add('employee-saved');
+    }
+  });
   if(!empCards().length) addEmployee();
 
-  generateAllSchedules();
+  updateGrandSummary();
   updateGrandSummary();
   q('status').textContent='Draft loaded';
   setTimeout(()=>q('status').textContent='',1600);
@@ -602,13 +1047,13 @@ function buildPrintBill(){
             <th rowspan="2">Basic</th>
             <th colspan="3">TO BE DRAWN</th>
             <th colspan="3">ALREADY DRAWN</th>
-            <th colspan="4">DIFFERENCE</th>
+            <th colspan="6">DIFFERENCE</th>
             <th rowspan="2">DA%</th>
           </tr>
           <tr>
             <th>DA</th><th>HRA%</th><th>HRA</th>
             <th>DA</th><th>HRA%</th><th>HRA</th>
-            <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th>
+            <th>Basic</th><th>DA</th><th>HRA</th><th>Gross</th><th>IT Deduction</th><th>Net Amount</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -627,6 +1072,9 @@ function buildPrintBill(){
       const adDa=tbDa;
       const adHra=Math.round(basic*adHraR/100);
       const hraDiff=tbHra-adHra;
+      const itRate=n(ev(card,'itRate'));
+      const itDeduction=Math.round(hraDiff*itRate/100);
+      const netAmount=hraDiff-itDeduction;
 
       const r=document.createElement('tr');
       r.innerHTML=`
@@ -644,6 +1092,8 @@ function buildPrintBill(){
         <td class="num">0</td>
         <td class="num">${cell(hraDiff)}</td>
         <td class="num">${cell(hraDiff)}</td>
+        <td class="num">${cell(itDeduction)}</td>
+        <td class="num">${cell(netAmount)}</td>
         <td class="center">${daR}%</td>`;
       pb.appendChild(r);
     });
@@ -652,9 +1102,11 @@ function buildPrintBill(){
     const foot=document.createElement('tfoot');
     foot.innerHTML=`
       <tr>
-        <th colspan="12" class="num">Employee Gross Arrear</th>
+        <th colspan="12" class="num">Employee Totals</th>
         <th class="num">${cell(t.dHra)}</th>
         <th class="num">${cell(t.dGross)}</th>
+        <th class="num">${cell(t.it)}</th>
+        <th class="num">${cell(t.net)}</th>
         <th></th>
       </tr>`;
     wrap.querySelector('table').appendChild(foot);
@@ -696,16 +1148,34 @@ function numberToIndianWords(num){
 }
 
 (function init(){
-  const d=new Date();q('billDate').value=dateISO(d);
-  q('officeTbHra').innerHTML=hraOptions(20);
-  q('officeAdHra').innerHTML=hraOptions(10);
+  q('billDate').value='2026-10-08';
+  q('officeTbHra').innerHTML=hraOptions(10);
+  q('officeAdHra').innerHTML=hraOptions(9);
   q('officeTbHra').addEventListener('change',generateAllSchedules);
   q('officeAdHra').addEventListener('change',generateAllSchedules);
   addEmployee({
-    empId:'14008897',empName:'Dr. Ch. Vishnu Murty',designation:'Principal',
-    scaleKey:'ugc-al14',startingBasic:157600,incrementMonth:'jan',
-    billFrom:'2024-07-01',billTo:'2026-09-30',
-    hraChangeFlag:'no',hraChangeDate:'',newTbHra:10,newAdHra:10
+    empId:'14343733',
+    empName:'Dr.K.Jwalamukhi',
+    designation:'Lecturer in Zoology',
+    scaleKey:'ugc-al13a',
+    startingBasic:131400,
+    incrementMonth:'jan',
+    billFrom:'2024-07-01',
+    billTo:'2026-09-30',
+    hraChangeFlag:'no',
+    startTbHra:10,
+    startAdHra:9,
+    hraChangeDate:'',
+    newTbHra:10,
+    newAdHra:9,
+    payChangeFlag:'no',
+    payChangeDate:'',
+    payChangeReason:'CAS',
+    newScale:'ugc-al13a',
+    newBasic:131400,
+    newIncrementMonth:'jan',
+    gpf:0,
+    itRate:31.4
   });
 })();
 </script>
