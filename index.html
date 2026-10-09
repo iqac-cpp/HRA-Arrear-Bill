@@ -1507,7 +1507,7 @@ function buildProceedings(){
   const principalQualification=q('principalQualification').value.trim() || 'M.Sc., M.Phil., Ph.D.';
   const proceedingsNo=q('proceedingsNo').value.trim() || '01/UGC2016/HRA/2026';
 
-  q('procTitle').textContent=`PROCEEDINGS OF THE PRINCIPAL, ${office}`;
+  q('procTitle').textContent=`Proceedings of the Principal, ${office}`;
   q('procPrincipalName').textContent=principalQualification ? `${principalName}, ${principalQualification}` : principalName;
   q('procProceedingsNo').textContent=proceedingsNo;
   q('procPrincipalDesignation').textContent='PRINCIPAL';
