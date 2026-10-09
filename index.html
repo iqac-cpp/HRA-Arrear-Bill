@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HRA Arrear Bill Software </title>
+<title>HRA Arrear Bill Software V3</title>
 <style>
 :root{
   --bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#647084;--line:#d8deea;
@@ -364,6 +364,7 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
   font-weight:700;
   font-size:15pt;
   margin-bottom:8px;
+  text-transform:none;
 }
 .proc-present{
   text-align:center;
@@ -534,12 +535,12 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
   </div>
 
   <div class="proceedings-print-area" id="proceedingsPrintArea">
-    <div class="proc-title" id="procTitle">Proceedings of the Principal, GDC CHEEPURUPALLI</div>
+    <div class="proc-title" id="procTitle">Proceedings of the Principal, GDC Cheepurupalli</div>
     <div class="proc-present">Present: <span id="procPrincipalName"></span></div>
 
     <div class="proc-meta">
       <div><b>Rc.No. <span id="procProceedingsNo"></span></b></div>
-      <div><b>Dated: 06.10.2026</b></div>
+      <div><b>Dated: <span id="procDate"></span></b></div>
     </div>
 
     <div class="proc-subject">
@@ -769,6 +770,19 @@ function monthSegments(fromStr,toStr,splitDates=[]){
 
 function empCards(){return [...document.querySelectorAll('.emp-card')]}
 
+function validateEmployeeId(card, showAlert=true){
+  const input=card.querySelector('.empId');
+  if(!input) return true;
+  const value=input.value.trim();
+  const ok=/^\d{8}$/.test(value);
+  input.setCustomValidity(ok ? '' : 'Employee ID must be exactly 8 digits.');
+  if(!ok && showAlert){
+    alert('Employee ID must be exactly 8 digits. Example: 14343733');
+    input.focus();
+  }
+  return ok;
+}
+
 function addEmployee(data={}, shouldScroll=false){
   if(empCards().length>=MAX_EMP){alert('Maximum 20 employees are allowed.');return}
   const index=empCards().length+1;
@@ -785,7 +799,10 @@ function addEmployee(data={}, shouldScroll=false){
     </div>
     <div class="emp-body">
       <div class="grid">
-        <div class="field"><label>Employee ID</label><input class="empId" value="${data.empId||''}"></div>
+        <div class="field"><label>Employee ID</label>
+          <input class="empId" value="${data.empId||''}" inputmode="numeric" maxlength="8"
+                 pattern="[0-9]{8}" title="Employee ID must be exactly 8 digits">
+        </div>
         <div class="field span2"><label>Employee Name</label><input class="empName" value="${data.empName||''}"></div>
         <div class="field"><label>Designation</label><input class="designation" value="${data.designation||''}"></div>
 
@@ -889,6 +906,12 @@ function addEmployee(data={}, shouldScroll=false){
     </div>`;
   q('employees').appendChild(div);
 
+  const empIdInput=div.querySelector('.empId');
+  empIdInput.addEventListener('input',()=>{
+    empIdInput.value=empIdInput.value.replace(/\D/g,'').slice(0,8);
+    empIdInput.setCustomValidity('');
+  });
+
   const scale=div.querySelector('.scale');
   const basic=div.querySelector('.startingBasic');
   scale.addEventListener('change',()=>{
@@ -953,6 +976,7 @@ function addEmployee(data={}, shouldScroll=false){
 
 
 function saveAndGenerateEmployee(card){
+  if(!validateEmployeeId(card)) return;
   const name=ev(card,'empName').trim();
   if(!name){
     alert('Enter Employee Name before generating the bill.');
@@ -996,6 +1020,7 @@ function saveAndGenerateEmployee(card){
 
 
 function finalSaveEmployee(card){
+  if(!validateEmployeeId(card)) return;
   const name=ev(card,'empName').trim();
   if(!name){
     alert('Enter Employee Name before saving.');
@@ -1348,7 +1373,11 @@ function buildBillAbstract(validCards){
 function buildPrintBill(){
   generateAllSchedules();
 
-  const valid=empCards().filter(c=>ev(c,'empName').trim());
+  const allCards=empCards();
+  for(const card of allCards){
+    if(ev(card,'empName').trim() && !validateEmployeeId(card)) return false;
+  }
+  const valid=allCards.filter(c=>ev(c,'empName').trim());
   if(!valid.length){
     alert('Enter at least one employee name before previewing or printing.');
     return false;
@@ -1496,7 +1525,11 @@ function printBill(){
 function buildProceedings(){
   generateAllSchedules();
 
-  const valid=empCards().filter(c=>ev(c,'empName').trim());
+  const allCards=empCards();
+  for(const card of allCards){
+    if(ev(card,'empName').trim() && !validateEmployeeId(card)) return false;
+  }
+  const valid=allCards.filter(c=>ev(c,'empName').trim());
   if(!valid.length){
     alert('Enter at least one employee before printing proceedings.');
     return false;
@@ -1510,6 +1543,7 @@ function buildProceedings(){
   q('procTitle').textContent=`Proceedings of the Principal, ${office}`;
   q('procPrincipalName').textContent=principalQualification ? `${principalName}, ${principalQualification}` : principalName;
   q('procProceedingsNo').textContent=proceedingsNo;
+  q('procDate').textContent=iso(q('billDate').value) || '________';
   q('procPrincipalDesignation').textContent='PRINCIPAL';
   q('procSignatureOffice').textContent=office.toUpperCase();
 
