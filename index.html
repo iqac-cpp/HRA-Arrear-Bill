@@ -855,7 +855,7 @@ function addEmployee(data={}, shouldScroll=false){
         </div>
 
         <div class="field"><label>GPF / Deduction</label><input class="gpf" type="number" value="${data.gpf||0}"></div>
-        <div class="field"><label>IT / Other Deduction %</label><select class="itRate">${itRateOptions(data.itRate||0)}</select></div>
+        <div class="field"><label>IT / Other Deduction %</label><select class="itRate">${itRateOptions(data.itRate ?? 31.4)}</select></div>
       </div>
 
       <div class="employee-actions-before-table">
