@@ -423,6 +423,43 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
 }
 .proc-to-list li{margin:2px 0}
 
+
+.btn-save-draft{
+  background:#0f766e !important;
+  color:#fff !important;
+  border:1px solid #0f766e !important;
+}
+.btn-load-draft{
+  background:#475569 !important;
+  color:#fff !important;
+  border:1px solid #475569 !important;
+}
+.btn-add-employee{
+  background:#2563eb !important;
+  color:#fff !important;
+  border:1px solid #2563eb !important;
+}
+.btn-preview{
+  background:#7c3aed !important;
+  color:#fff !important;
+  border:1px solid #7c3aed !important;
+}
+.btn-print-bill{
+  background:#1d4ed8 !important;
+  color:#fff !important;
+  border:1px solid #1d4ed8 !important;
+}
+.btn-proceedings{
+  background:#b45309 !important;
+  color:#fff !important;
+  border:1px solid #b45309 !important;
+}
+.btn-new-bill{
+  background:#fff1f2 !important;
+  color:#b91c1c !important;
+  border:1px solid #fca5a5 !important;
+}
+
 </style>
 </head>
 <body>
@@ -433,14 +470,14 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
       <div class="subtitle">Month-wise UGC arrear calculation with annual increment progression</div>
     </div>
     <div class="actions">
-      <button class="secondary" onclick="saveDraft()">Save Draft</button>
-      <button class="secondary" onclick="loadDraft()">Load Draft</button>
-      <button class="primary" onclick="addEmployee({}, true)">+ Add Employee</button>
-      <button class="primary" onclick="generateAllSchedules()">Generate All</button>
-      <button class="secondary" onclick="previewBill()">Preview Bill</button>
-      <button class="primary" onclick="printBill()">Print Bill</button>
-      <button class="secondary" onclick="printProceedings()">Print Proceedings</button>
-      <button class="danger" onclick="newBill()">New Bill</button>
+      <button class="btn-save-draft" onclick="saveDraft()">Save Draft</button>
+      <button class="btn-load-draft" onclick="loadDraft()">Load Draft</button>
+      <button class="btn-add-employee" onclick="addEmployee({}, true)">+ Add Employee</button>
+      
+      <button class="btn-preview" onclick="previewBill()">Preview Bill</button>
+      <button class="btn-print-bill" onclick="printBill()">Print Bill</button>
+      <button class="btn-proceedings" onclick="printProceedings()">Print Proceedings</button>
+      <button class="btn-new-bill" onclick="newBill()">New Bill</button>
       <span class="status" id="status"></span>
     </div>
   </div>
