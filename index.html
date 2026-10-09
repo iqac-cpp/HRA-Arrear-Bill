@@ -473,7 +473,7 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
         Starting Basic Pay means the pay applicable on the bill start date. For January increment employees, each future 1 January moves to the next pay stage. For July increment employees, each future 1 July moves to the next stage.
       </div>
       <div id="employees"></div>
-      <div><span class="badge" id="empCount">0 / 20 employees</span></div>
+      <div><span class="badge" id="empCount">0 / 30 employees</span></div>
     </div>
   </section>
 
@@ -602,7 +602,7 @@ td input,td select{width:100%;min-width:86px;border:1px solid #ccd5e1;border-rad
 </div>
 
 <script>
-const MAX_EMP = 20;
+const MAX_EMP = 30;
 
 const UGC_PAY_SCALES = [
   { key:'ugc-al10', label:'Academic Level 10: 57700-182400', display:'UGC AL 10: 57700-182400', values:[57700,59400,61200,63000,64900,66800,68800,70900,73000,75200,77500,79800,82200,84700,87200,89800,92500,95300,98200,101100,104100,107200,110400,113700,117100,120600,124200,127900,131700,135700,139800,144000,148300,152700,157300,162000,166900,171900,177100,182400] },
@@ -784,7 +784,7 @@ function validateEmployeeId(card, showAlert=true){
 }
 
 function addEmployee(data={}, shouldScroll=false){
-  if(empCards().length>=MAX_EMP){alert('Maximum 20 employees are allowed.');return}
+  if(empCards().length>=MAX_EMP){alert('Maximum 30 employees are allowed.');return}
   const index=empCards().length+1;
   const scaleKey=data.scaleKey||'ugc-al14';
   const startingBasic=data.startingBasic||157600;
